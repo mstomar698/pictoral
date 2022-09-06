@@ -19,7 +19,8 @@ tasks:
     init: gp sync-await link2
     command: cd frontend && npm run start 
   - name: browser
-    init: gp preview $(gp url 8080)/image-editor
+    init: gp sync-await compile
+    command: gp preview $(gp url 8080)/image-editor
 
 #  The port will open at http://localhost:8080/image-editor
 ports:
