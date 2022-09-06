@@ -7,10 +7,10 @@ tasks:
   - name: Terminal_1
     init: npm i -g wasm-pack
   - name: Terminal_2
-    init: gp sync-await terminal_1
+    init: gp sync-await Terminal_1
     command: wasm-pack build && cd frontend && npm i --legacy-peer-deps
   - name: Terminal_3
-    init: gp sync-await terminal_2
+    init: gp sync-await Terminal_2
     command: cd pkg && npm link
   - name: Terminal_4
     init: gp sync-await Terminal_3
@@ -18,7 +18,7 @@ tasks:
   - name: Terminal _5
     init: gp sync-await Terminal_4
     command: cd frontend && npm run start && gp preview $(gp url 8080)/image-editor
-    
+
 #  The port will open at http://localhost:8080/image-editor
 ports:
   - port: 8080
