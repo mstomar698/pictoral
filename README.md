@@ -2,7 +2,6 @@
 
 - A web-app that provide image manipulation and processing functionalities with the help of rust and wasm-pack.
 
-###### By: Mayank Singh Tomar
 
 # Installation
 
