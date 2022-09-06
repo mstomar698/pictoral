@@ -3,21 +3,23 @@
 # and commit this file to your remote git repository to share the goodness with others.
 
 tasks:
-  - init: gp open README.md
-  - name: Terminal_1
-    init: npm i -g wasm-pack
-  - name: Terminal_2
-    init: gp sync-await Terminal_1
-    command: wasm-pack build && cd frontend && npm i --legacy-peer-deps
-  - name: Terminal_3
-    init: gp sync-await Terminal_2
+  # - init: gp open README.md
+  - name: npm
+    init: npm i -g wasm-pack && cd frontend && npm i --legacy-peer-deps
+  - name: build
+    init: gp sync-await npm
+    command: wasm-pack build
+  - name: link
+    init: gp sync-await build
     command: cd pkg && npm link
-  - name: Terminal_4
-    init: gp sync-await Terminal_3
+  - name: link2
+    init: gp sync-await link
     command: cd frontend && npm link --legacy-peer-deps
-  - name: Terminal _5
-    init: gp sync-await Terminal_4
-    command: cd frontend && npm run start && gp preview $(gp url 8080)/image-editor
+  - name: compile
+    init: gp sync-await link2
+    command: cd frontend && npm run start 
+  - name: browser
+    init: gp preview $(gp url 8080)/image-editor
 
 #  The port will open at http://localhost:8080/image-editor
 ports:
