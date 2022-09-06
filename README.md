@@ -1,8 +1,8 @@
 # React-WASM-Rust template
 
-- A simple template for ready to use web-app consiting of react-rust-web-assembly.
+- A web-app that provide image manipulation and processing functionalities with the help of rust and wasm-pack.
 
-###### By: Mayank Singh Tomar   
+###### By: Mayank Singh Tomar
 
 # Installation
 
@@ -21,26 +21,42 @@ curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 ### Clone the repo
 
 ```bash
-git clone https://github.com/201B153/wasm-rust-webpack-template.git
+git clone https://github.com/edwardwohaijun/image-editor.git
 ```
 
-#### Then in source folder `./wasm-rust-webpack-template`
+#### In source folder `./image-editor`
 
 ```bash
-npm install
+wasm-pack build
 ```
 
-and
+#### Then in Frontend folder `./image-editor/frontend`
 
 ```bash
-npm run build
+npm install --legacy-peer-deps
 ```
 
 #### To run:
 
+###### Then in pkg folder `./image-editor/pkg`
+
 ```bash
-npm run dev
+npm link
 ```
+
+###### and in frontend folder `./image-editor/frontend`
+
+```bash
+npm link image-editor
+```
+
+###### and finally in frontend folder `./image-editor/frontend`
+
+```bash
+npm run start
+```
+
+To make it run on `http://localhost:8080/image-editor`
 
 ### License
 

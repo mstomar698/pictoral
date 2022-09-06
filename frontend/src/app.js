@@ -6,18 +6,19 @@ import {  add } from 'image-editor/image_editor_bg';
 const wasm = import('image-editor/image_editor_bg');
 // From package.json
 // import { applyMiddleware, compose } from 'redux';
-// import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 // import thunkMiddleware from 'redux-thunk';
 import 'babel-polyfill';
 import { fromJS } from 'immutable';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import { createStore, applyMiddleware, compose } from 'redux';
+import {  applyMiddleware, compose } from 'redux'; // If configureStore doesn't work use createStore,
 // From directory
-import Main from './components/Main';
-import reducers from './reducers';
-import './style.css';
-import Index from './index.jsx';
+import './App.css';
+// from React_Directory
+// import ReactMain from './ReactComponent/Main';
+import ReactReducers from './ReactReducers/Index.jsx';
+import Index from './ReactComponents/Index.jsx';
 
 // For checking errors in react components
 class ErrorBoundary extends React.Component {
@@ -84,8 +85,10 @@ let initialState = {
 //   initialState,
 //   composeEnhancers(applyMiddleware(thunkMiddleware))
 // );
-let store = createStore(
-  reducers,
+let store = configureStore(
+  // reducers,
+    { reducer: ReactReducers },
+  // ReactReducers,
   initialState,
   compose(
     applyMiddleware(thunk),
@@ -106,10 +109,10 @@ class App extends Component {
       loading: false,
     };
   }
-  render() {
+  render() { // Add to Main to the Index
     return (
       <ErrorBoundary>
-        <Main />
+        <Index />
       </ErrorBoundary>
     );
   }
@@ -118,7 +121,7 @@ class App extends Component {
 ReactDOM.render(
   <Provider store={store}>
     <ErrorBoundary>
-      <Index />
+      <App />
     </ErrorBoundary>
   </Provider>,
   document.getElementById('main')
