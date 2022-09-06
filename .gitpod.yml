@@ -4,15 +4,12 @@
 
 tasks:
   - name: Terminal 1
-    before: npm 'before build'
     init: npm i -g wasm-pack
     command: wasm-pack build
   - name: Terminal 2
-    before: cd 'before link'
     init: cd frontend && npm i --legacy-peer-deps
     command: cd ../pkg && npm link 
   - name: Terminal 3
-    before: cd 'before start'
     init: cd frontend && npm link --legacy-peer-deps
     command: npm run start
 
