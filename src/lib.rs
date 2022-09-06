@@ -3,7 +3,7 @@ extern crate cfg_if;
 extern crate wasm_bindgen;
 
 // Main JS connection link
-pub mod image;
+pub mod production_tools;
 // Using Binaries Here //
 use cfg_if::cfg_if;
 use wasm_bindgen::prelude::*;
