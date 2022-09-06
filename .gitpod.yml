@@ -4,20 +4,21 @@
 
 tasks:
   - init: gp open README.md
-  - name: Terminal 1
+  - name: Terminal_1
     init: npm i -g wasm-pack
-    command: wasm-pack build
-    before: gp sync-done wasm-pack build
-  - name: Terminal 2
-    init: cd frontend && npm i --legacy-peer-deps
-    command: cd frontend && npm i --legacy-peer-deps
-  - name: Terminal 3
-    before: gp sync-await wasm-pack build && cd pkg && npm link 
-  - name: Terminal 4
-    command: gp sync-await wasmc-pack build && cd frontend && npm link --legacy-peer-deps
-  - name: Terminal 5
-    command: gp sync-await npm i --legacy-peer-deps && npm run start
-  - before: gp sync-await wasmc-pack build &&  gp preview $(gp url 8080)/image-editor
+  - name: Terminal_2
+    init: gp sync-await terminal_1
+    command: wasm-pack build && cd frontend && npm i --legacy-peer-deps
+  - name: Terminal_3
+    init: gp sync-await terminal_2
+    command: cd pkg && npm link
+  - name: Terminal_4
+    init: gp sync-await Terminal_3
+    command: cd frontend && npm link --legacy-peer-deps
+  - name: Terminal _5
+    init: gp sync-await Terminal_4
+    command: cd frontend && npm run start && gp preview $(gp url 8080)/image-editor
+    
 #  The port will open at http://localhost:8080/image-editor
 ports:
   - port: 8080
