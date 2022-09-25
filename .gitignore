@@ -1,2 +1,5 @@
 pkg/**
 target/**
+node_modules
+dump.txt
+.gitignore
