@@ -3,3 +3,4 @@ target/**
 node_modules
 dump.txt
 .gitignore
+frontend/.gitignore
