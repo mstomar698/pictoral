@@ -1,4 +1,4 @@
-# React-WASM-Rust template
+# Image Transformation Using WebAssembly
 
 - A web-app that provide image manipulation and processing functionalities with the help of rust and wasm-pack.
 
@@ -20,7 +20,7 @@ curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 ### Clone the repo
 
 ```bash
-git clone https://github.com/edwardwohaijun/image-editor.git
+git clone https://github.com/Minor-And-Major-Projects-2024/Image-Editor-WebPack
 ```
 
 #### In source folder `./image-editor`
