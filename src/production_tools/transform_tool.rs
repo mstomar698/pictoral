@@ -184,10 +184,5 @@ impl Image {
     }
   }
 
-  // This is an independent fn for deciding bicubic interpolation
-  fn bicubic_interpolate(&mut self, x: f64, pixel_buf: &mut Vec<u8>) {
-    // We will write it later.
-  }
-
 }
 

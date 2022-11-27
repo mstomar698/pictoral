@@ -1,42 +1,30 @@
-// React binary
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-// From backend
-import {  add } from 'image-editor/image_editor_bg';
+import { add } from 'image-editor/image_editor_bg';
 const wasm = import('image-editor/image_editor_bg');
-// From package.json
-// import { applyMiddleware, compose } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
-// import thunkMiddleware from 'redux-thunk';
 import 'babel-polyfill';
 import { fromJS } from 'immutable';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import {  applyMiddleware, compose } from 'redux'; // If configureStore doesn't work use createStore,
-// From directory
+import { applyMiddleware, compose } from 'redux';
 import './App.css';
-// from React_Directory
-// import ReactMain from './ReactComponent/Main';
-import ReactReducers from './ReactReducers/Index.jsx';
-import Index from './ReactComponents/Index.jsx';
+import ReactReducers from './reducers/Index';
+import Main from './components/Main';
 
-// For checking errors in react components
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { error: null, errorInfo: null };
   }
   componentDidCatch(error, errorInfo) {
-    // Catch errors in any components below and re-render with error message
     this.setState({
       error: error,
       errorInfo: errorInfo,
     });
-    // You can also log error messages to an error reporting service here
   }
   render() {
     if (this.state.errorInfo) {
-      // Error path
       return (
         <div>
           <h2>Something went wrong.</h2>
@@ -48,12 +36,11 @@ class ErrorBoundary extends React.Component {
         </div>
       );
     }
-    // Normally, just render children
+
     return this.props.children;
   }
 }
 
-// Basic image functionalities
 let initialState = {
   imgStat: fromJS({
     zoomRatio: 0,
@@ -71,24 +58,10 @@ let initialState = {
     heights: { top: 0, bottom: 0 },
   }),
 };
-// store & reducers block
-// let allReducers = combineReducers({
-//here are all reducers
-//   initialState,
-//   reducers,
-// });
-// enhancers initialized
-// const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-// initializing store
-// const store = configureStore(
-//   { reducer: allReducers },
-//   initialState,
-//   composeEnhancers(applyMiddleware(thunkMiddleware))
-// );
+
 let store = configureStore(
-  // reducers,
-    { reducer: ReactReducers },
-  // ReactReducers,
+  { reducer: ReactReducers },
+
   initialState,
   compose(
     applyMiddleware(thunk),
@@ -98,21 +71,20 @@ let store = configureStore(
   )
 );
 
-// Main Loader
 class App extends Component {
   constructor(props) {
-    console.log(Image);
-    console.log(wasm);
+    // console.log(Image);
+    // console.log(wasm);
     console.log(add);
     super(props);
     this.state = {
       loading: false,
     };
   }
-  render() { // Add to Main to the Index
+  render() {
     return (
       <ErrorBoundary>
-        <Index />
+        <Main />
       </ErrorBoundary>
     );
   }
