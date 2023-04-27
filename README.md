@@ -1,6 +1,7 @@
-# Image Transformation Using WebAssembly
+# Pictoral
 
 - A web-app that provide image manipulation and processing functionalities with the help of rust and wasm-pack.
+- It makes image transformation quick and secure with the help of webassembly.
 
 
 # Installation
