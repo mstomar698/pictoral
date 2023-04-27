@@ -1,6 +1,7 @@
-# Image Transformation Using WebAssembly
+# Pictoral
 
 - A web-app that provide image manipulation and processing functionalities with the help of rust and wasm-pack.
+- It makes image transformation quick and secure with the help of webassembly.
 
 
 # Installation
@@ -20,38 +21,16 @@ curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 ### Clone the repo
 
 ```bash
-git clone https://github.com/Minor-And-Major-Projects-2024/Image-Editor-WebPack
-```
-
-#### In source folder `./image-editor`
-
-```bash
+git clone https://github.com/mstomar698/pictoral
+#### In source folder 
 wasm-pack build
-```
-
-#### Then in Frontend folder `./image-editor/frontend`
-
-```bash
+#### Then in Frontend folder 
 npm install --legacy-peer-deps
-```
-
-#### To run:
-
-###### Then in pkg folder `./image-editor/pkg`
-
-```bash
+###### Then in pkg folder 
 npm link
-```
-
-###### and in frontend folder `./image-editor/frontend`
-
-```bash
+###### and in frontend folder 
 npm link image-editor
-```
-
-###### and finally in frontend folder `./image-editor/frontend`
-
-```bash
+## linking
 npm run start
 ```
 
