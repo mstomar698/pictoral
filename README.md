@@ -36,6 +36,3 @@ npm run start
 
 To make it run on `http://localhost:8080/image-editor`
 
-### License
-
-This project is licensed under [MIT](https://www.mit.edu/~amini/LICENSE.md)

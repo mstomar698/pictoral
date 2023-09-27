@@ -1,25 +1,29 @@
-// Setting Binaries
 extern crate wasm_bindgen;
 extern crate console_error_panic_hook;
 
-// Using Binaries
 use wasm_bindgen::prelude::*;
-use std::ops::Mul;
-use std::ops::Add;
-use std::default::Default;
 
-// Sharing through other scripts
 mod transform_tool;
-// Other scripts here
+mod color_tool;
+mod filter_tool;
 
-// For Super::Operation used in transform_tool.rs
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
+
 #[derive(Copy, Clone, Debug)] 
 pub enum Operation {
     NoOp,
     AdjustColor,
-    Transform,
+    Transform, 
+
+    
     Pixelate {top_x: u32, top_y: u32, width: u32, height: u32},
     BilateralFilter,
+
+    
     Miniaturize {top_height: u32, bottom_height: u32},
     GaussianBlur,
     Cartoonify,
@@ -30,55 +34,61 @@ pub struct Image {
     width: u32,
     height: u32,
     pixels: Vec<u8>,
-    // Other
+
+    pixels_bk: Vec<u8>,
     width_bk: u32,
     height_bk: u32,
-    pixels_bk: Vec<u8>,
-    // Operations
+
     last_operation: Operation,
-    // Color
-    hsi: Vec<Vec<f64>>,
-    lab: Vec<f64>, //for bilateral filter coloring
-    // dct: (Vec<f64>, Vec<f64>), // for JPEG only
+
+    hsi: Vec<Vec<f64>>, 
+    lab: Vec<f64>, 
+    
 }
 
 #[wasm_bindgen]
 impl Image {
-    pub fn new(w: u32, h: u32, buf: Vec<u8>) -> Image {  // Image object
+    pub fn new(w: u32, h: u32, buf: Vec<u8>) -> Image {
         console_error_panic_hook::set_once();
         Image {
             width: w,
             height: h,
             pixels: buf.clone(),
-            // Other
+
             pixels_bk: buf,
             width_bk: w,
             height_bk: h,
-            // Operations
+
             last_operation: Operation::NoOp,
-            // Color
+
             hsi: vec![vec![], vec![], vec![]],
             lab: vec![0_f64; 0],
-            // dct: Self::initialize_dct(),
+            
         }
     }
 
+    
+    
+    
     pub fn reuse(&mut self, w: u32, h: u32, buf: Vec<u8>) {
         self.pixels = buf.clone();
         self.width = w;
         self.height = h;
-        // Other
+
         self.pixels_bk = buf;
         self.width_bk = w;
         self.height_bk = h;
     }
 
-    pub fn pixels(&self) -> *const u8 { self.pixels.as_ptr() }
+    pub fn pixels(&self) -> *const u8 {
+        self.pixels.as_ptr()
+    }
     pub fn width(&self) -> u32 { self.width }
     pub fn height(&self) -> u32 { self.height }
     pub fn width_bk(&self) -> u32 { self.width_bk }
     pub fn height_bk(&self) -> u32 { self.height_bk }
 
+    
     fn cleanup(&mut self) {
         match self.last_operation {
             Operation::Pixelate {..} => {
@@ -105,9 +115,10 @@ impl Image {
         self.cleanup()
     }
 
+    
+   
     pub fn undo(&mut self) {
 
     }
+
 }
-
-
