@@ -1,14 +1,15 @@
+
 const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
-  entry: ['./bootstrap.js'],
+  entry: ["./bootstrap.js"], 
   output: {
     publicPath: '/image-editor',
-    path: path.resolve(__dirname, 'build'),
-    filename: 'bundle.js',
+    path: path.resolve(__dirname, "build"),
+    filename: "bundle.js",
   },
-  mode: 'production',
+  mode: "production",
   module: {
     rules: [
       {
@@ -22,33 +23,33 @@ module.exports = {
               {
                 plugins: [
                   '@babel/plugin-proposal-class-properties',
-                  '@babel/plugin-syntax-dynamic-import',
-                ],
+                  '@babel/plugin-syntax-dynamic-import'
+                ]
               },
-              '@babel/react',
-            ],
-          },
+              '@babel/react'
+            ]
+          }
         },
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.(jpe?g|gif|png|ico|svg)$/i,
-        loader: 'url-loader?limit=1024&name=images/[name].[ext]',
+        loader:'url-loader?limit=1024&name=images/[name].[ext]'
       },
       {
         test: /\.(woff|woff2|eot|ttf|svg)(\?.*$|$)/i,
-        loader: 'url-loader?limit=10240&name=../fonts/[name].[ext]',
-      },
-    ],
+        loader: 'url-loader?limit=10240&name=../fonts/[name].[ext]'
+      }
+    ]
   },
 
   plugins: [
     new webpack.DefinePlugin({
       PRODUCTION: JSON.stringify(true),
-      URL_PATH: JSON.stringify('/image-editor'),
-    }),
+      URL_PATH: JSON.stringify('/image-editor')
+    })
   ],
 };

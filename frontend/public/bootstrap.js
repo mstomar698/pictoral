@@ -55,8 +55,8 @@
 /******/ 		"../pkg/image_editor_bg.wasm": function() {
 /******/ 			return {
 /******/ 				"./image_editor_bg.js": {
-/******/ 					"__wbg_alert_2365afac651068cd": function(p0i32,p1i32) {
-/******/ 						return installedModules["../pkg/image_editor_bg.js"].exports["__wbg_alert_2365afac651068cd"](p0i32,p1i32);
+/******/ 					"__wbindgen_object_drop_ref": function(p0i32) {
+/******/ 						return installedModules["../pkg/image_editor_bg.js"].exports["__wbindgen_object_drop_ref"](p0i32);
 /******/ 					},
 /******/ 					"__wbg_new_693216e109162396": function() {
 /******/ 						return installedModules["../pkg/image_editor_bg.js"].exports["__wbg_new_693216e109162396"]();
@@ -66,9 +66,6 @@
 /******/ 					},
 /******/ 					"__wbg_error_09919627ac0992f5": function(p0i32,p1i32) {
 /******/ 						return installedModules["../pkg/image_editor_bg.js"].exports["__wbg_error_09919627ac0992f5"](p0i32,p1i32);
-/******/ 					},
-/******/ 					"__wbindgen_object_drop_ref": function(p0i32) {
-/******/ 						return installedModules["../pkg/image_editor_bg.js"].exports["__wbindgen_object_drop_ref"](p0i32);
 /******/ 					},
 /******/ 					"__wbindgen_throw": function(p0i32,p1i32) {
 /******/ 						return installedModules["../pkg/image_editor_bg.js"].exports["__wbindgen_throw"](p0i32,p1i32);
@@ -174,7 +171,7 @@
 /******/ 				promises.push(installedWasmModuleData);
 /******/ 			else {
 /******/ 				var importObject = wasmImportObjects[wasmModuleId]();
-/******/ 				var req = fetch(__webpack_require__.p + "" + {"../pkg/image_editor_bg.wasm":"f8a8468e00dfc5f4dd98"}[wasmModuleId] + ".module.wasm");
+/******/ 				var req = fetch(__webpack_require__.p + "" + {"../pkg/image_editor_bg.wasm":"17c59f9828c770893fd1"}[wasmModuleId] + ".module.wasm");
 /******/ 				var promise;
 /******/ 				if(importObject instanceof Promise && typeof WebAssembly.compileStreaming === 'function') {
 /******/ 					promise = Promise.all([WebAssembly.compileStreaming(req), importObject]).then(function(items) {
@@ -275,7 +272,7 @@
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("// A dependency graph that contains any wasm must all be imported\n// asynchronously. This `bootstrap.js` file does the single async import, so\n// that no one else needs to worry about it again.\nPromise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(1)]).then(__webpack_require__.bind(null, /*! ./src/App.js */ \"./src/App.js\"))[\"catch\"](function (e) {\n  return console.error(\"Error importing `App.js`:\", e);\n});\n\n//# sourceURL=webpack:///./bootstrap.js?");
+eval("Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(1)]).then(__webpack_require__.bind(null, /*! ./src/app.js */ \"./src/app.js\"))[\"catch\"](function (e) {\n  return console.error('Error importing `app.js`:', e);\n});\n\n//# sourceURL=webpack:///./bootstrap.js?");
 
 /***/ }),
 

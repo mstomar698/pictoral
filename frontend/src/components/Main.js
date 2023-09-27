@@ -7,7 +7,7 @@ import Canvas from './Canvas/index';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setZoomRatio, setWidthHeight } from '../actions';
-import { CIRCLE_RADIUS } from '../constants/handler.js';
+import { CIRCLE_RADIUS } from '../constants/handler';
 
 class Main extends Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class Main extends Component {
     this.state = {
       selectedTool: null,
     };
-    this.imgSrc = `${URL_PATH}/img/pic-1.jpg`;
+    this.imgSrc = `${URL_PATH}/img/endgame.jpg`;
   }
 
   onSelectTool = (id) => this.setState({ selectedTool: id });

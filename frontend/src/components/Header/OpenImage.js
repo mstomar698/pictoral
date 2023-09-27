@@ -100,33 +100,33 @@ export default class OpenImage extends Component {
 
             <li
               className="test-image clickable"
-              id={`${URL_PATH}/img/pic-1.jpg`}
+              id={`${URL_PATH}/img/wonder-woman.jpg`}
             >
-              default-pic-1
+              wonder-woman
             </li>
             <li
               className="test-image clickable"
-              id={`${URL_PATH}/img/pic-2.jpg`}
+              id={`${URL_PATH}/img/endgame.jpg`}
             >
-              defaul-pic-2
+              Avengers: endgame
             </li>
             <li
               className="test-image clickable"
-              id={`${URL_PATH}/img/pic-3.jpg`}
+              id={`${URL_PATH}/img/TrueBlood.jpg`}
             >
-              default-pic-3
+              True Blood (temperature adjust)
             </li>
             <li
               className="test-image clickable"
-              id={`${URL_PATH}/img/pic-4.jpg`}
+              id={`${URL_PATH}/img/kitty.jpg`}
             >
-              default-pic-4
+              Kitty (Low contrast - too bright)
             </li>
             <li
               className="test-image clickable"
-              id={`${URL_PATH}/img/pic-5.jpg`}
+              id={`${URL_PATH}/img/forest.jpg`}
             >
-              default-pic-5
+              Forest (low contrast - too dark)
             </li>
           </ul>
         )}

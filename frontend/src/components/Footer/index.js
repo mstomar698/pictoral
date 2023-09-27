@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ZoomRatio from './ZoomRatio';
-import Layers from './Layers'
 
 class Footer extends Component {
   constructor(props) {
@@ -14,8 +13,6 @@ class Footer extends Component {
         style={{
           display: 'flex',
           position: 'absolute',
-          flexDirection: 'row',
-          
           bottom: '0px',
           height: '44px',
           width: '100%',
@@ -23,7 +20,6 @@ class Footer extends Component {
         }}
       >
         <ZoomRatio resizeCanvas={this.props.resizeCanvas} />
-        <Layers />
       </div>
     );
   }

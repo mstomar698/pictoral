@@ -322,6 +322,11 @@ class PixelateHandlers extends Component {
           {...HANDLER_COMMON_PROPS}
         />
 
+        {/*
+          rect's starting X/Y are bigger, width/height are smaller than the underlying innerRect for easy grab,
+          otherwise, the grab cursor overlap the resize cursor when the mouse is over one of resize handlers.
+          Set the rect's fill to 'yellow', fillOpacity = 0.4, and you'd see what I mean.
+          */}
         <rect
           x={xOffset + CIRCLE_RADIUS * 2}
           y={yOffset + CIRCLE_RADIUS * 2}

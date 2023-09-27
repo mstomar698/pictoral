@@ -1,45 +1,14 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { add } from 'image-editor/image_editor_bg';
-const wasm = import('image-editor/image_editor_bg');
-import { configureStore } from '@reduxjs/toolkit';
-import 'babel-polyfill';
-import { fromJS } from 'immutable';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import { applyMiddleware, compose } from 'redux';
-import './App.css';
-import ReactReducers from './reducers/Index';
+import { createStore, applyMiddleware, compose } from 'redux';
+import { fromJS } from 'immutable';
+
+import 'babel-polyfill';
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import Main from './components/Main';
-
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { error: null, errorInfo: null };
-  }
-  componentDidCatch(error, errorInfo) {
-    this.setState({
-      error: error,
-      errorInfo: errorInfo,
-    });
-  }
-  render() {
-    if (this.state.errorInfo) {
-      return (
-        <div>
-          <h2>Something went wrong.</h2>
-          <details style={{ whiteSpace: 'pre-wrap' }}>
-            {this.state.error && this.state.error.toString()}
-            <br />
-            {this.state.errorInfo.componentStack}
-          </details>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
+import reducers from './reducers';
+import './style.css';
 
 let initialState = {
   imgStat: fromJS({
@@ -59,9 +28,8 @@ let initialState = {
   }),
 };
 
-let store = configureStore(
-  { reducer: ReactReducers },
-
+let store = createStore(
+  reducers,
   initialState,
   compose(
     applyMiddleware(thunk),
@@ -73,28 +41,19 @@ let store = configureStore(
 
 class App extends Component {
   constructor(props) {
-    // console.log(Image);
-    // console.log(wasm);
-    console.log(add);
     super(props);
     this.state = {
       loading: false,
     };
   }
   render() {
-    return (
-      <ErrorBoundary>
-        <Main />
-      </ErrorBoundary>
-    );
+    return <Main />;
   }
 }
 
 ReactDOM.render(
   <Provider store={store}>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <App />
   </Provider>,
   document.getElementById('main')
 );

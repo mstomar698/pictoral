@@ -7,20 +7,10 @@
     "create-wasm-app": ".bin/create-wasm-app.js"
   },
   "scripts": {
+    "dev": "webpack-dev-server",
     "build": "webpack --config webpack.config.js",
-    "start": "webpack-dev-server",
-    "dev": "webpack-dev-server"
+    "start": "webpack-dev-server"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Minor-And-Major-Projects-2024/Image-Editor-WebPack"
-  },
-  "keywords": [
-    "wasm",
-    "rust",
-    "webpack",
-    "image processing"
-  ],
   "devDependencies": {
     "@babel/core": "^7.3.4",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
@@ -41,7 +31,6 @@
     "webpack-dev-server": "^3.3.1"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^1.9.0",
     "immutable": "^4.0.0-rc.12",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",

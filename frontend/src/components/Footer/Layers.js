@@ -6,7 +6,7 @@ class Layers extends Component {
   }
 
   render() {
-    return <div className='footer-head'>mstomar698</div>;
+    return <div>layers</div>;
   }
 }
 

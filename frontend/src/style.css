@@ -66,13 +66,18 @@ a {
   margin-bottom: 18px;
 }
 .editor-header span {
-  pointer-events: none;
+  pointer-events: none; /* to prevent this element from capturing click evt */
 }
 .editor-header-wrapper {
+  /*
+    display: flex;
+    align-items: center;
+    */
   margin-bottom: 20px;
 }
 
 .svg-down-arrow {
+  /* transition: transform 0.5s; */
   margin-right: 8px;
 }
 
@@ -139,6 +144,14 @@ a {
   outline: none;
 }
 
+/*
+.editor-item-label {
+    color: #FFF;
+    margin-bottom: 8px;
+}
+*/
+
+/* buttons like: flip-left/right, rotate-clockwise */
 .editor-btn,
 #editor-goback-btn {
   width: 32px;
@@ -159,6 +172,9 @@ a {
 #editor-goback-btn:focus {
   outline: none;
 }
+/*
+http://brennaobrien.com/blog/2014/05/style-input-type-range-in-every-browser.html
+*/
 
 .primary-btn {
   width: 80px;
@@ -226,6 +242,10 @@ a {
   outline: none;
 }
 
+/*
+https://codepen.io/bbodine1/pen/novBm
+https://codepen.io/andreasstorm/pen/ZorYLO
+ */
 .toggle-label,
 .radio-label {
   position: relative;
@@ -353,6 +373,7 @@ input[type='range']::-moz-range-thumb {
   background: #347bd0;
 }
 
+/*hide the outline behind the border*/
 input[type='range']:-moz-focusring {
   outline: 1px solid white;
   outline-offset: -1px;
@@ -366,11 +387,14 @@ input[type='range']::-ms-track {
   width: 180px;
   height: 5px;
 
+  /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
   background: transparent;
 
+  /*leave room for the larger thumb to overflow with a transparent border */
   border-color: transparent;
   border-width: 6px 0;
 
+  /*remove default tick marks*/
   color: transparent;
 }
 input[type='range']::-ms-fill-lower {
@@ -408,30 +432,4 @@ input[type='range']:focus::-ms-fill-upper {
   50% {
     opacity: 0;
   }
-}
-
-.date {
-  color: white;
-  font-size: 18px;
-  padding-right: 1rem;
-  padding-left: 1rem;
-}
-.heading-corner {
-  display: flex;
-  justify-content: space-between;
-}
-.date-heading {
-  color: white;
-  font-size: 18px;
-  padding-right: 1rem;
-  padding-left: 1rem;
-  padding-top: 1rem;
-}
-
-.footer-head {
-  padding-left: 65rem;
-
-  color: white;
-  font-size: 18px;
-  padding-top: 1rem;
 }

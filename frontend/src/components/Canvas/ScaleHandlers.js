@@ -209,7 +209,8 @@ export default class ScaleHandlers extends Component {
           <rect fill="#FFF" x="0" width="12" height="12" y="12" />
         </pattern>
         <rect fill="url(#pattern)" x="0" y="0" width="100%" height="100%" />
-
+        {/* todo: animate the path, like: https:
+          {/* path */}
         <path
           d={pathAttribute}
           fill="url(#svg-checkerboard-pattern"

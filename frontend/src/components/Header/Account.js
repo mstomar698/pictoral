@@ -4,16 +4,12 @@ class Account extends Component {
     super(props);
     this.state = {};
     this.span = null;
-    this.state = {
-      date: new Date().toLocaleString(),
-    };
   }
 
   render() {
     return (
-      // todo: we will add authorization later
-      <div className="date">
-        <p>{this.state.date}</p>
+      <div>
+        <div>login/signup</div>
       </div>
     );
   }

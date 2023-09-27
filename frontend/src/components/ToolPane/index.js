@@ -48,6 +48,7 @@ class ToolPane extends Component {
             zoomRatio={this.props.zoomRatio}
             loadImage={this.props.loadImage}
           />
+          {/* passing null(or passing nothing) close the AccordionMenu(or hide it by translating it to the left), passing toolID translate it into the view */}
         </div>
         <ul
           style={{
@@ -61,10 +62,34 @@ class ToolPane extends Component {
           }}
         >
           <ToolIcon
+            id="tool-basic"
+            iconID="basic"
+            onClick={this.onSelectTool}
+            selected={this.props.selectedTool === 'tool-basic'}
+          />
+          <ToolIcon
             id="tool-transform"
             iconID="transform"
             onClick={this.onSelectTool}
             selected={this.props.selectedTool === 'tool-transform'}
+          />
+          <ToolIcon
+            id="tool-color"
+            iconID="color"
+            onClick={this.onSelectTool}
+            selected={this.props.selectedTool === 'tool-color'}
+          />
+          <ToolIcon
+            id="tool-filter"
+            iconID="filter"
+            onClick={this.onSelectTool}
+            selected={this.props.selectedTool === 'tool-filter'}
+          />
+          <ToolIcon
+            id="tool-text"
+            iconID="text"
+            onClick={this.onSelectTool}
+            selected={this.props.selectedTool === 'tool-text'}
           />
         </ul>
       </div>

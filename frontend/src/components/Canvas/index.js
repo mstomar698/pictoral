@@ -49,7 +49,10 @@ class Canvas extends Component {
           ref={(canvas) => (this.canvas = canvas)}
           style={{ position: 'absolute', margin: '20px' }}
         />
-       
+        {/*<canvas id='canvas' ref={canvas => this.canvas = canvas} style={{position: 'absolute'}} />*/}
+        {/* canvas must have a margin of 20px(larger than imgHandler radius is enough, otherwise the upper part of imgHandler of large canvas will be "cut off" */}
+
+        {/* if new handlers are to be created, don't forget to update fn resizeCanvas() in Main */}
         {this.props.cropHandlersVisible ? (
           <CropHandlers zoomRatio={this.props.zoomRatio} />
         ) : null}
@@ -59,6 +62,7 @@ class Canvas extends Component {
         {this.props.miniHandlersVisible ? (
           <MiniHandlers zoomRatio={this.props.zoomRatio} />
         ) : null}
+        {/* todo: I just copy and paste to create the <PixelateHandlers />, consider refactoring them into a <Handler /> */}
       </div>
     );
   }

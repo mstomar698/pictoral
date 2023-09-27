@@ -1,6 +1,11 @@
 import imgObj from '../common/imgObj';
 import { memory } from 'image-editor/image_editor_bg';
 import React, { Component } from 'react';
+
+import BasicTool from './basic';
+import ColorTool from './color';
+import FilterTool from './filter';
+import TextTool from './text';
 import TransformTool from './transform';
 
 class AccordionMenu extends Component {
@@ -33,6 +38,24 @@ class AccordionMenu extends Component {
     let tool;
     let label;
     switch (this.props.selectedTool) {
+      case 'tool-basic':
+        label = 'BASIC';
+        tool = <BasicTool redraw={this.redraw} />;
+        break;
+      case 'tool-color':
+        label = 'COLOR';
+        tool = <ColorTool redraw={this.redraw} />;
+        break;
+      case 'tool-filter':
+        label = 'FILTER';
+        tool = (
+          <FilterTool redraw={this.redraw} loadImage={this.props.loadImage} />
+        );
+        break;
+      case 'tool-text':
+        label = 'TEXT';
+        tool = <TextTool redraw={this.redraw} />;
+        break;
       case 'tool-transform':
         label = 'TRANSFORM';
         tool = <TransformTool redraw={this.redraw} />;

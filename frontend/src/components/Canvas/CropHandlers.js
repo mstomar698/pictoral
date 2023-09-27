@@ -318,6 +318,11 @@ class CropHandlers extends Component {
           {...handlerCommonProps}
         />
 
+        {/*
+          rect's starting X/Y are bigger, width/height are smaller than the underlying innerRect for easy grab,
+          otherwise, the grab cursor overlap the resize cursor when the mouse is over one of resize handlers.
+          set the rect's fill to 'yellow', fillOpacity = 0.4, and you'd see what I mean.
+          */}
         <rect
           x={9 + 9}
           y={9 + 9}
