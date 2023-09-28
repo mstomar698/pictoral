@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "webpack-dev-server",
     "build": "webpack --config webpack.config.js",
-    "start": "webpack-dev-server"
+    "start": "webpack-dev-server",
+    "setup": "npm install --legacy-peer-deps && move image-editor-copy node_modules"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
