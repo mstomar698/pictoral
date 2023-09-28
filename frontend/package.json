@@ -9,8 +9,7 @@
   "scripts": {
     "dev": "webpack-dev-server",
     "build": "webpack --config webpack.config.js",
-    "start": "webpack-dev-server",
-    "setup": "npm install --legacy-peer-deps && move image-editor-copy node_modules"
+    "start": "webpack-dev-server"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
@@ -32,6 +31,7 @@
     "webpack-dev-server": "^3.3.1"
   },
   "dependencies": {
+    "image-editor-bk-rust": "^0.1.0",
     "immutable": "^4.0.0-rc.12",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",

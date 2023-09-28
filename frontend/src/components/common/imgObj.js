@@ -1,4 +1,4 @@
-import { Image } from 'image-editor/image_editor';
+import { Image } from 'image-editor-bk-rust/image_editor';
 
 let imgObj = (function () {
   let img;

@@ -1,5 +1,5 @@
 import imgObj from '../../common/imgObj';
-import { memory } from 'image-editor/image_editor_bg';
+import { memory } from 'image-editor-bk-rust/image_editor_bg';
 import React, { Component } from 'react';
 
 class TextTool extends Component {
