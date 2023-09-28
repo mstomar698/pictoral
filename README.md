@@ -26,11 +26,7 @@ git clone https://github.com/mstomar698/pictoral
 wasm-pack build
 #### Then in Frontend folder 
 npm install --legacy-peer-deps
-###### Then in pkg folder 
-npm link
-###### and in frontend folder 
-npm link image-editor
-## linking
+# setup
 npm run start
 ```
 
