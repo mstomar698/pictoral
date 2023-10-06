@@ -9,7 +9,7 @@ class Account extends Component {
   render() {
     return (
       <div>
-        <div>login/signup</div>
+        <div className='text-red-600'>login/signup</div>
       </div>
     );
   }
