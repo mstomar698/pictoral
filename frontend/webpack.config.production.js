@@ -1,15 +1,27 @@
-
 const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
 module.exports = {
-  entry: ["./bootstrap.js"], 
+  entry: ['./bootstrap.js'],
   output: {
-    publicPath: '/image-editor',
-    path: path.resolve(__dirname, "build"),
-    filename: "bundle.js",
+    publicPath: '',
+    path: path.resolve(__dirname, 'public'),
+    filename: 'bootstrap.js',
   },
-  mode: "production",
+  mode: 'production',
+  experiments: {
+    asyncWebAssembly: true,
+  },
+  devServer: {
+    static: {
+      directory: path.join(__dirname, 'public'),
+    },
+    host: 'localhost',
+    port: 3000,
+    compress: true,
+    open: true,
+  },
   module: {
     rules: [
       {
@@ -23,33 +35,51 @@ module.exports = {
               {
                 plugins: [
                   '@babel/plugin-proposal-class-properties',
-                  '@babel/plugin-syntax-dynamic-import'
-                ]
+                  '@babel/plugin-syntax-dynamic-import',
+                ],
               },
-              '@babel/react'
-            ]
-          }
+              '@babel/react',
+            ],
+          },
         },
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.(jpe?g|gif|png|ico|svg)$/i,
-        loader:'url-loader?limit=1024&name=images/[name].[ext]'
+        use: {
+          loader: 'url-loader',
+          options: {
+            limit: 1024,
+            name: 'images/[name].[ext]',
+          },
+        },
       },
       {
         test: /\.(woff|woff2|eot|ttf|svg)(\?.*$|$)/i,
-        loader: 'url-loader?limit=10240&name=../fonts/[name].[ext]'
-      }
-    ]
+        use: {
+          loader: 'url-loader',
+          options: {
+            limit: 10240,
+            name: '../fonts/[name].[ext]',
+          },
+        },
+      },
+      {
+        test: /\.wasm$/,
+        type: 'webassembly/async',
+      },
+    ],
   },
-
   plugins: [
     new webpack.DefinePlugin({
       PRODUCTION: JSON.stringify(true),
-      URL_PATH: JSON.stringify('/image-editor')
-    })
+      URL_PATH: JSON.stringify(''),
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: 'index.html' }],
+    }),
   ],
 };
