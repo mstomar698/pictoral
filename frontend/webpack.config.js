@@ -18,6 +18,7 @@ module.exports = {
       directory: path.join(__dirname, 'public'),
     },
     host: 'localhost',
+    historyApiFallback: true,
     port: 3000,
     compress: true,
     open: true,
@@ -45,7 +46,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
       {
         test: /\.(jpe?g|gif|png|ico|svg)$/i,

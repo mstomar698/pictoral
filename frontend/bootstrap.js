@@ -1,3 +1,3 @@
-import('./src/app.js').catch((e) =>
-  console.error('Error importing `app.js`:', e)
+import('./src/App.js').catch((e) =>
+  console.error('Error importing `App.js`:', e)
 );

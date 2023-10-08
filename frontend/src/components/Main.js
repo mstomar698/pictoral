@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setZoomRatio, setWidthHeight } from '../actions';
 import { CIRCLE_RADIUS } from '../constants/handler';
+import SubHeader from './SubHeader';
 
 class Main extends Component {
   constructor(props) {
@@ -15,7 +16,7 @@ class Main extends Component {
     this.state = {
       selectedTool: null,
     };
-    this.imgSrc = `${URL_PATH}/img/endgame.jpg`;
+    this.imgSrc = `${URL_PATH}/img/main.jpg`;
   }
 
   onSelectTool = (id) => this.setState({ selectedTool: id });
@@ -144,7 +145,7 @@ class Main extends Component {
   };
 
   render() {
-    let canvasParentStyle = { width: '100%', backgroundColor: '#1e2025' };
+    let canvasParentStyle = { width: '100%', backgroundColor: '#1e2025', paddingBottom: '30px' };
     canvasParentStyle.transform =
       this.state.selectedTool == null
         ? 'translate(0px, 0px)'
@@ -154,13 +155,14 @@ class Main extends Component {
         ? 'calc(100vw - 76px)'
         : 'calc(100vw - 332px)';
     return (
-      <div>
+      <div className='h-full relative'>
         <Header resizeCanvas={this.resizeCanvas} loadImage={this.loadImage} />
+        <SubHeader resizeCanvas={this.resizeCanvas} loadImage={this.loadImage} />
         <div
           style={{
             display: 'flex',
             position: 'relative',
-            zIndex: '50',
+            // zIndex: '50',
             bottom: '0px',
             width: '100%',
           }}
