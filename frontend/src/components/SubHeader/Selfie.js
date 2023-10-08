@@ -4,7 +4,7 @@ const VIDEO = 1;
 const CANVAS = -1;
 const NO_MEDIA = 0;
 const FILTERS = [
-  { label: 'NONE', f: '' },
+  { label: 'original', f: '' },
   { label: 'invert', f: 'invert(0.8)' },
   { label: 'grayscale', f: 'grayscale(1)' },
   { label: 'saturate', f: 'saturate(6)' },
@@ -12,9 +12,9 @@ const FILTERS = [
   { label: 'blur', f: 'blur(5px)' },
   { label: 'brightness', f: 'brightness(5)' },
   { label: 'contrast', f: 'contrast(5)' },
-  { label: 'hue-rotate-Hulk', f: 'hue-rotate(90deg)' },
-  { label: 'hue-rotate-Avatar', f: 'hue-rotate(180deg)' },
-  { label: 'hue-rotate-Thanos', f: 'hue-rotate(270deg)' },
+  { label: 'hue-rotate(90deg)', f: 'hue-rotate(90deg)' },
+  { label: 'hue-rotate(180deg)', f: 'hue-rotate(180deg)' },
+  { label: 'hue-rotate(270deg)', f: 'hue-rotate(270deg)' },
 ];
 
 export default class Selfie extends Component {
@@ -405,26 +405,28 @@ const FilterList = (props) => {
 };
 
 const ErrorMsg = () => (
-  <div>
-    <h1>Possible reasons for this error</h1>
-    <ul>
-      <li>
-        Your browser is too old, please use latest version of{' '}
-        <a target="_blank" href="https://www.google.com/chrome/">
-          Chrome
-        </a>
-        or{' '}
-        <a target="_blank" href="https://www.mozilla.org/en-US/firefox/new/">
-          Firefox
-        </a>
-        .
-      </li>
-      <li>You don't have any cameras plugged in.</li>
-      <li>
-        You need to grant permission to use your camera, like the following
-        screenshot shows:
-      </li>
-    </ul>
-    <img src={`${URL_PATH}/img/permissionDialog.jpg`} />
+  <div className="flex flex-col justify-center items-center p-4">
+    <div>
+      <h1>Possible reasons for this error</h1>
+      <ul>
+        <li>
+          Your browser is too old, please use the latest version of{' '}
+          <a target="_blank" href="https://www.google.com/chrome/">
+            Chrome
+          </a>
+          or{' '}
+          <a target="_blank" href="https://www.mozilla.org/en-US/firefox/new/">
+            Firefox
+          </a>
+          .
+        </li>
+        <li>You don't have any cameras plugged in.</li>
+        <li>
+          You haven't allowed camera access for this site. Please check your
+          browser settings.
+        </li>
+      </ul>
+    </div>
+    <img src={`${URL_PATH}/img/permissionDiologBoxes.png`} />
   </div>
 );

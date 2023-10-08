@@ -11,14 +11,7 @@ export default class ImgFileHandler extends Component {
 
   render() {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          width: '280px',
-          alignItems: 'center',
-        }}
-      >
+      <div className="flex justify-around w-72 items-center">
         <OpenImage
           resizeCanvas={this.props.resizeCanvas}
           loadImage={this.props.loadImage}

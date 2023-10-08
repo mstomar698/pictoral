@@ -18,6 +18,7 @@ module.exports = {
       directory: path.join(__dirname, 'public'),
     },
     host: 'localhost',
+    historyApiFallback: true,
     port: 3000,
     compress: true,
     open: true,

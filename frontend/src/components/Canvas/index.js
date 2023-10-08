@@ -47,7 +47,7 @@ class Canvas extends Component {
         <canvas
           id="canvas"
           ref={(canvas) => (this.canvas = canvas)}
-          style={{ position: 'absolute', margin: '20px' }}
+          style={{ position: 'absolute', margin: '20px', }}
         />
         {/*<canvas id='canvas' ref={canvas => this.canvas = canvas} style={{position: 'absolute'}} />*/}
         {/* canvas must have a margin of 20px(larger than imgHandler radius is enough, otherwise the upper part of imgHandler of large canvas will be "cut off" */}

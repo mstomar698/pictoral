@@ -3,12 +3,6 @@ import imgObj from '../common/imgObj';
 import { memory } from 'image-editor-bk-rust/image_editor_bg.wasm';
 let wasm_img = imgObj.get_wasm_img();
 
-const BtnWrapperStyle = {
-  height: '36px',
-  display: 'flex',
-  alignItems: 'center',
-  position: 'relative',
-};
 export default class Save extends Component {
   constructor(props) {
     super(props);
@@ -39,8 +33,11 @@ export default class Save extends Component {
 
   render() {
     return (
-      <div style={BtnWrapperStyle}>
-        <button className="img-file-handler-btn" onClick={this.onSave}>
+      <div className="flex items-center relative">
+        <button
+          className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 hover:border-gray-100 rounded-md shadow-sm bg-transparent text-sm font-medium text-gray-300 hover:text-gray-50 focus:outline-none"
+          onClick={this.onSave}
+        >
           Save
         </button>
       </div>
