@@ -1,9 +1,21 @@
 import imgObj from '../../common/imgObj';
 import React, { Component } from 'react';
 import ApplyButton from '../common/ApplyButton';
+import type { ToolSubtoolWithLoadProps, WasmImage } from '../../../types';
 
-export default class BilateralFilter extends Component {
-  constructor(props) {
+interface BilateralFilterState {
+  sigma_domain: number;
+  sigma_range: number;
+  iter_count: number;
+  running: boolean;
+}
+
+export default class BilateralFilter extends Component<ToolSubtoolWithLoadProps, BilateralFilterState> {
+  wasm_img: WasmImage;
+  incr: number;
+  changeApplied: boolean;
+
+  constructor(props: ToolSubtoolWithLoadProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.state = {
@@ -20,7 +32,7 @@ export default class BilateralFilter extends Component {
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
@@ -38,23 +50,23 @@ export default class BilateralFilter extends Component {
         iter_count,
         incr
       );
-      this.props.redraw();
+      this.props.redraw?.();
       this.setState({ running: false });
     }, 100);
   };
 
-  onChange = (evt) => {
-    let tgt = evt.target;
-    let valueType = tgt.dataset.valueType;
+  onChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    let tgt = evt.target as HTMLInputElement;
+    let valueType = tgt.dataset.valueType as keyof BilateralFilterState;
     let changeManner = tgt.dataset.valueChange;
     let value;
     switch (changeManner) {
       case 'up': {
-        value = this.state[valueType] + 1;
+        value = (this.state[valueType] as number) + 1;
         break;
       }
       case 'down': {
-        value = this.state[valueType] - 1;
+        value = (this.state[valueType] as number) - 1;
         break;
       }
       case 'set': {
@@ -80,7 +92,7 @@ export default class BilateralFilter extends Component {
       this.incr = value - this.state[valueType];
     }
 
-    this.setState({ [valueType]: value, running: true }, this.bf);
+    this.setState({ [valueType]: value, running: true } as Pick<BilateralFilterState, keyof BilateralFilterState>, this.bf);
     this.changeApplied = false;
   };
 
@@ -90,9 +102,9 @@ export default class BilateralFilter extends Component {
     this.props.onSelectTool('');
   };
 
-  loadImage = (evt) => {
+  loadImage = (evt: React.MouseEvent<HTMLUListElement>) => {
     this.props.onSelectTool('');
-    this.props.loadImage(evt.target.id);
+    this.props.loadImage?.((evt.target as HTMLElement).id);
   };
 
   render() {
@@ -117,7 +129,7 @@ export default class BilateralFilter extends Component {
               <div>Iteration Count</div>
               <span style={{ fontSize: '11px' }}>More count, more smooth</span>
             </div>
-            <div style={{ paddingRight: '8px' }}>{this.state.saturation}</div>
+            <div style={{ paddingRight: '8px' }}>{this.state.iter_count}</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <button
@@ -190,7 +202,7 @@ export default class BilateralFilter extends Component {
                 Big image should have big radius
               </span>
             </div>
-            <div style={{ paddingRight: '8px' }}>{this.state.saturation}</div>
+            <div style={{ paddingRight: '8px' }}>{this.state.sigma_domain}</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <button

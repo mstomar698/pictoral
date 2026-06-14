@@ -4,9 +4,30 @@ import ApplyButton from '../common/ApplyButton';
 import { showMiniHandlers } from '../../../actions';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import type { Map } from 'immutable';
+import type { RootState, AppDispatch } from '../../../store';
+import type { Heights, ToolSubtoolWithLoadProps, WasmImage } from '../../../types';
 
-class Miniaturize extends Component {
-  constructor(props) {
+interface MiniaturizeState {
+  handlerVisible: boolean;
+  sigma: number;
+  running: boolean;
+}
+
+type MiniaturizeProps = ToolSubtoolWithLoadProps & {
+  heights: Map<keyof Heights, number>;
+  imgWidth: number;
+  imgHeight: number;
+  showHandler: (visible: boolean) => void;
+};
+
+class Miniaturize extends Component<MiniaturizeProps, MiniaturizeState> {
+  wasm_img: WasmImage;
+  heights: Heights;
+  topOrBottom: 'both' | 'top' | 'bottom';
+  changeApplied: boolean;
+
+  constructor(props: MiniaturizeProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.state = {
@@ -45,7 +66,7 @@ class Miniaturize extends Component {
           break;
         }
       }
-      this.props.redraw();
+      this.props.redraw?.();
       this.setState({ running: false });
     }, 100);
   };
@@ -55,13 +76,13 @@ class Miniaturize extends Component {
     this.props.showHandler(false);
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
   componentDidUpdate = () => {
-    let top_height = this.props.heights.get('top');
-    let bottom_height = this.props.heights.get('bottom');
+    let top_height = this.props.heights.get('top') as number;
+    let bottom_height = this.props.heights.get('bottom') as number;
 
     if (
       top_height < 0 ||
@@ -93,8 +114,8 @@ class Miniaturize extends Component {
     this.changeApplied = false;
   };
 
-  onChange = (evt) => {
-    let tgt = evt.target;
+  onChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    let tgt = evt.target as HTMLInputElement;
     let changeManner = tgt.dataset.valueChange;
     let sigma;
     switch (changeManner) {
@@ -129,7 +150,7 @@ class Miniaturize extends Component {
     this.props.onSelectTool('');
   };
 
-  toggleHandlers = (evt) => {
+  toggleHandlers = (evt: React.ChangeEvent<HTMLInputElement>) => {
     let handler = document.getElementById('canvas-handler');
     if (handler) {
       handler.style.visibility = evt.target.checked ? 'visible' : 'hidden';
@@ -137,9 +158,9 @@ class Miniaturize extends Component {
     }
   };
 
-  loadImage = (evt) => {
+  loadImage = (evt: React.MouseEvent<HTMLUListElement>) => {
     this.props.onSelectTool('');
-    this.props.loadImage(evt.target.id);
+    this.props.loadImage?.((evt.target as HTMLElement).id);
   };
 
   render() {
@@ -251,11 +272,11 @@ class Miniaturize extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  heights: state.miniHandlers.get('heights'),
-  imgWidth: state.imgStat.get('width'),
-  imgHeight: state.imgStat.get('height'),
+const mapStateToProps = (state: RootState) => ({
+  heights: state.miniHandlers.get('heights') as Map<keyof Heights, number>,
+  imgWidth: state.imgStat.get('width') as number,
+  imgHeight: state.imgStat.get('height') as number,
 });
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ showHandler: showMiniHandlers }, dispatch);
 export default connect(mapStateToProps, mapDispatchToProps)(Miniaturize);

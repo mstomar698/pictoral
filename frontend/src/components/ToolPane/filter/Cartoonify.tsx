@@ -1,9 +1,13 @@
 import imgObj from '../../common/imgObj';
 import React, { Component } from 'react';
 import ApplyButton from '../common/ApplyButton';
+import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-export default class Cartoonify extends Component {
-  constructor(props) {
+export default class Cartoonify extends Component<ToolSubtoolProps> {
+  wasm_img: WasmImage;
+  changeApplied: boolean;
+
+  constructor(props: ToolSubtoolProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.state = {};
@@ -13,14 +17,14 @@ export default class Cartoonify extends Component {
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
   onCartoonify = () => {
     this.wasm_img.cartoonify(4, 5, 3, false);
 
-    this.props.redraw();
+    this.props.redraw?.();
   };
 
   onApply = () => {
