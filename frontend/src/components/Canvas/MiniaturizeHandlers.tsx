@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setMiniHeights } from '../../actions';
+import type { RootState, AppDispatch } from '../../store';
+import type { Heights, ZoomRatioProps } from '../../types';
 import {
   CIRCLE_RADIUS,
   HANDLER_COMMON_PROPS,
@@ -9,11 +11,22 @@ import {
   MIN_HANDLER_RECT_HEIGHT,
 } from '../../constants/handler';
 
-class MiniHandlers extends Component {
-  constructor(props) {
+class MiniHandlers extends Component<ZoomRatioProps & { imgWidth: number; imgHeight: number; setMiniHeights: (heights: Heights) => void }, { selectedHandler: string }> {
+  canvas: HTMLCanvasElement;
+  canvasWidth: number;
+  canvasHeight: number;
+  svg: SVGSVGElement | null;
+  handlerWidth: number;
+  handlerHeight: number;
+  handlerX: number;
+  handlerY: number;
+  handlerMovingX: number;
+  handlerMovingY: number;
+
+  constructor(props: ZoomRatioProps & { imgWidth: number; imgHeight: number; setMiniHeights: (heights: Heights) => void }) {
     super(props);
     this.state = { selectedHandler: '' };
-    this.canvas = document.getElementById('canvas');
+    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
     this.canvasWidth = Math.round(props.imgWidth * props.zoomRatio);
     this.canvasHeight = Math.round(props.imgHeight * props.zoomRatio);
     this.svg = null;
@@ -39,23 +52,23 @@ class MiniHandlers extends Component {
     });
   };
 
-  noGhosting = (evt) => evt.preventDefault();
+  noGhosting = (evt: Event) => evt.preventDefault();
   componentDidMount = () => {
     this.setMiniRegion();
 
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
       imgHandlers[i].addEventListener('mousedown', this.noGhosting);
     }
   };
   componentWillUnmount = () => {
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
       imgHandlers[i].removeEventListener('mousedown', this.noGhosting);
     }
   };
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = (prevProps: ZoomRatioProps & { imgWidth: number; imgHeight: number }) => {
     let resizeRatio = this.props.zoomRatio / prevProps.zoomRatio;
     this.handlerX = Math.round(
       (this.handlerX - CIRCLE_RADIUS) * resizeRatio + CIRCLE_RADIUS
@@ -82,13 +95,13 @@ class MiniHandlers extends Component {
       [xOffset + w * 0.5, yOffset + h],
     ];
 
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
-      imgHandlers[i].setAttribute('x', imgHandlersXY[i][0]);
-      imgHandlers[i].setAttribute('y', imgHandlersXY[i][1]);
+      imgHandlers[i].setAttribute('x', String(imgHandlersXY[i][0]));
+      imgHandlers[i].setAttribute('y', String(imgHandlersXY[i][1]));
     }
 
-    let pathEle = this.svg.getElementsByTagName('path')[0];
+    let pathEle = this.svg!.getElementsByTagName('path')[0];
     let path = composePath({
       x: this.handlerX,
       y: this.handlerY,
@@ -98,33 +111,34 @@ class MiniHandlers extends Component {
     pathEle.setAttribute('d', path);
   };
 
-  onMouseDown = (evt) => {
-    if (!evt.target.classList.contains('canvas-handler')) {
+  onMouseDown = (evt: React.MouseEvent<SVGSVGElement>) => {
+    const target = evt.target as SVGElement;
+    if (!target.classList.contains('canvas-handler')) {
       return;
     }
 
     this.handlerMovingX = evt.clientX;
     this.handlerMovingY = evt.clientY;
     this.setState({
-      selectedHandler: evt.target.id,
+      selectedHandler: target.id,
     });
   };
 
-  onMouseUp = (evt) => {
+  onMouseUp = (_evt: React.MouseEvent<SVGSVGElement>) => {
     if (this.state.selectedHandler) {
       this.setState({ selectedHandler: '' });
       this.setMiniRegion();
     }
   };
 
-  onMouseLeave = (evt) => {
+  onMouseLeave = (_evt: React.MouseEvent<SVGSVGElement>) => {
     if (this.state.selectedHandler === '') {
       return;
     }
     this.setState({ selectedHandler: '' });
   };
 
-  onMouseMove = (evt) => {
+  onMouseMove = (evt: React.MouseEvent<SVGSVGElement>) => {
     if (!this.state.selectedHandler) {
       return;
     }
@@ -172,7 +186,7 @@ class MiniHandlers extends Component {
     this.setPosition();
   };
 
-  onHandlerDown = (evt) => evt.preventDefault();
+  onHandlerDown = (evt: React.MouseEvent) => evt.preventDefault();
 
   render() {
     let canvasLeft = this.canvas.style.left;
@@ -207,7 +221,7 @@ class MiniHandlers extends Component {
       <svg
         id="canvas-handler"
         ref={(s) => (this.svg = s)}
-        style={svgStyle}
+        style={svgStyle as React.CSSProperties}
         onMouseDown={this.onMouseDown}
         onMouseUp={this.onMouseUp}
         onMouseMove={this.onMouseMove}
@@ -235,15 +249,15 @@ class MiniHandlers extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  imgWidth: state.imgStat.get('width'),
-  imgHeight: state.imgStat.get('height'),
+const mapStateToProps = (state: RootState) => ({
+  imgWidth: state.imgStat.get('width') as number,
+  imgHeight: state.imgStat.get('height') as number,
 });
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ setMiniHeights }, dispatch);
 export default connect(mapStateToProps, mapDispatchToProps)(MiniHandlers);
 
-const composePath = (inner) => {
+const composePath = (inner: { x: number; y: number; width: number; height: number }) => {
   let innerRect =
     'M' +
     inner.x +

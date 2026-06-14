@@ -10,7 +10,7 @@ Make Pictoral a reproducible, production-ready OSS web image editor with Rust/WA
 | Area | Status |
 |------|--------|
 | Rust/WASM core | ✅ Compiles, `wasm-pack build` produces `pkg/` |
-| Frontend | ✅ React + Redux, TS migration in progress |
+| Frontend | ✅ React + Redux, fully TypeScript |
 | Unit tests | ✅ Rust (`cargo test`) + Vitest (reducers) |
 | E2E tests | ✅ Playwright (UI shell, navigation, canvas) |
 | CI/CD | ✅ GitHub Actions (rust, frontend, e2e jobs) |
@@ -70,9 +70,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 - [x] PR template + CONTRIBUTING guide
 
 ### Phase 3 — Stabilize & Improve (in progress)
-- [x] TypeScript migration: constants, actions, reducers, Main, SubHeader, Footer
-- [ ] Complete TypeScript migration (ToolPane, Canvas handlers)
+- [x] Complete TypeScript migration (all `frontend/src` modules)
 - [x] Rust unit tests for Image buffer operations
+- [x] Shared ToolHeader component for tool pane accordions
 - [ ] WASM integration tests with `wasm-bindgen-test`
 - [ ] Benchmarks for blur/resize
 - [ ] Memory/edge-case tests (tiny/large images)

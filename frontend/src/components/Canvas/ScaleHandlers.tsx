@@ -1,5 +1,6 @@
 import imgObj from '../common/imgObj';
 import React, { Component } from 'react';
+import type { WasmImage, ZoomRatioProps } from '../../types';
 
 const circleImg =
   'data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIxOHB4IiBoZWlnaHQ9IjE4cHgiIHZlcnNpb249IjEuMSI+PGNpcmNsZSBjeD0iOSIgY3k9IjkiIHI9IjUiIHN0cm9rZT0iI2ZmZiIgZmlsbD0iIzAwN2RmYyIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+';
@@ -11,8 +12,23 @@ const handlerCommonProps = {
   height: '18',
 };
 
-export default class ScaleHandlers extends Component {
-  constructor(props) {
+export default class ScaleHandlers extends Component<ZoomRatioProps, { selectedHandler: string }> {
+  wasm_img: WasmImage;
+  scaleRegionInfo: HTMLElement | null;
+  canvas: HTMLCanvasElement;
+  canvasWidth: number;
+  canvasHeight: number;
+  canvasBbox: DOMRect;
+  hwRatio: number;
+  svg: SVGSVGElement | null;
+  handlerX: number;
+  handlerY: number;
+  handlerWidth: number;
+  handlerHeight: number;
+  handlerMovingX: number;
+  handlerMovingY: number;
+
+  constructor(props: ZoomRatioProps) {
     super(props);
     this.state = {
       selectedHandler: '',
@@ -21,7 +37,7 @@ export default class ScaleHandlers extends Component {
     this.wasm_img = imgObj.get_wasm_img();
     this.scaleRegionInfo = null;
 
-    this.canvas = document.getElementById('canvas');
+    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
     this.canvasWidth = this.canvas.width;
     this.canvasHeight = this.canvas.height;
     this.canvasBbox = this.canvas.getBoundingClientRect();
@@ -36,13 +52,13 @@ export default class ScaleHandlers extends Component {
     this.handlerMovingY = 0;
   }
 
-  setScaleRegionInfo = (readOriginal) => {
-    let regionInfoEle = this.scaleRegionInfo.getElementsByClassName(
+  setScaleRegionInfo = (readOriginal: boolean) => {
+    let regionInfoEle = this.scaleRegionInfo!.getElementsByClassName(
       'canvas-handler-region-info'
     );
-    let w = regionInfoEle[0];
-    let h = regionInfoEle[1];
-    let ratio = regionInfoEle[2];
+    let w = regionInfoEle[0] as HTMLElement;
+    let h = regionInfoEle[1] as HTMLElement;
+    let ratio = regionInfoEle[2] as HTMLElement;
     if (readOriginal) {
       w.innerText = this.wasm_img.width() + ' px';
       h.innerText = this.wasm_img.height() + ' px';
@@ -55,7 +71,7 @@ export default class ScaleHandlers extends Component {
     h.innerText = Math.round(this.handlerHeight / zoomRatio) + ' px';
 
     ratio.innerText =
-      (this.handlerWidth / this.canvasWidth).toFixed(2) * 100 + ' %';
+      String(Number((this.handlerWidth / this.canvasWidth).toFixed(2)) * 100) + ' %';
   };
 
   componentDidMount = () => {
@@ -63,7 +79,7 @@ export default class ScaleHandlers extends Component {
     this.setScaleRegionInfo(true);
   };
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = (prevProps: ZoomRatioProps) => {
     let resizeRatio = this.props.zoomRatio / prevProps.zoomRatio;
     this.handlerX = Math.round((this.handlerX - 9) * resizeRatio + 9);
     this.handlerY = Math.round((this.handlerY - 9) * resizeRatio + 9);
@@ -78,13 +94,13 @@ export default class ScaleHandlers extends Component {
   setPosition = () => {
     let imgHandlersXY = [[this.handlerX - 9, this.handlerY - 9]];
 
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
-      imgHandlers[i].setAttribute('x', imgHandlersXY[i][0]);
-      imgHandlers[i].setAttribute('y', imgHandlersXY[i][1]);
+      imgHandlers[i].setAttribute('x', String(imgHandlersXY[i][0]));
+      imgHandlers[i].setAttribute('y', String(imgHandlersXY[i][1]));
     }
 
-    let pathEle = this.svg.getElementsByTagName('path')[0];
+    let pathEle = this.svg!.getElementsByTagName('path')[0];
     let path = composePath(
       { x: 9, y: 9, width: this.canvasWidth, height: this.canvasHeight },
       {
@@ -97,31 +113,32 @@ export default class ScaleHandlers extends Component {
     pathEle.setAttribute('d', path);
   };
 
-  onMouseDown = (evt) => {
-    if (!evt.target.classList.contains('canvas-handler')) {
+  onMouseDown = (evt: React.MouseEvent<SVGSVGElement>) => {
+    const target = evt.target as SVGElement;
+    if (!target.classList.contains('canvas-handler')) {
       return;
     }
 
     this.handlerMovingX = evt.clientX;
     this.handlerMovingY = evt.clientY;
     this.setState({
-      selectedHandler: evt.target.id,
+      selectedHandler: target.id,
     });
   };
 
-  onMouseUp = (evt) => {
+  onMouseUp = (_evt: React.MouseEvent<SVGSVGElement>) => {
     if (this.state.selectedHandler) {
       this.setState({ selectedHandler: '' });
     }
   };
 
-  onMouseLeave = (evt) => {
+  onMouseLeave = (_evt: React.MouseEvent<SVGSVGElement>) => {
     this.setState({
       selectedHandler: '',
     });
   };
 
-  onMouseMove = (evt) => {
+  onMouseMove = (evt: React.MouseEvent<SVGSVGElement>) => {
     if (!this.state.selectedHandler) {
       return;
     }
@@ -189,7 +206,7 @@ export default class ScaleHandlers extends Component {
       <svg
         id="canvas-handler"
         ref={(s) => (this.svg = s)}
-        style={svgStyle}
+        style={svgStyle as React.CSSProperties}
         onMouseDown={this.onMouseDown}
         onMouseUp={this.onMouseUp}
         onMouseMove={this.onMouseMove}
@@ -230,7 +247,7 @@ export default class ScaleHandlers extends Component {
   }
 }
 
-const composePath = (outer, inner) => {
+const composePath = (outer: { x: number; y: number; width: number; height: number }, inner: { x: number; y: number; width: number; height: number }) => {
   let outerRect =
     'M' +
     outer.x +
