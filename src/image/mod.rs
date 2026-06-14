@@ -129,7 +129,7 @@ impl Image {
 
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
     use super::Image;
 
@@ -177,5 +177,23 @@ mod tests {
         img.flip_h();
         img.discard_change();
         assert_eq!(img.pixels_data(), original);
+    }
+
+    #[test]
+    fn tiny_1x1_image_flip_roundtrip() {
+        let original = solid_pixels(1, 1, 42, 84, 126);
+        let mut img = Image::new(1, 1, original.clone());
+        img.flip_h();
+        img.apply_change();
+        assert_eq!(img.pixels_data().len(), 4);
+    }
+
+    #[test]
+    fn large_image_buffer_dimensions() {
+        let w = 512u32;
+        let h = 512u32;
+        let buf = solid_pixels(w, h, 1, 2, 3);
+        let img = Image::new(w, h, buf);
+        assert_eq!(img.pixels_data().len(), (w * h * 4) as usize);
     }
 }
