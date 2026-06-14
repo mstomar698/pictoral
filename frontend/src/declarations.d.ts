@@ -1,3 +1,7 @@
+// Webpack-injected globals
+declare const URL_PATH: string;
+declare const PRODUCTION: boolean;
+
 // Declare modules without TypeScript definitions
 
 declare module 'image-editor-bk-rust/image_editor' {
