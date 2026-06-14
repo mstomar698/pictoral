@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import type { RootState } from '../../store';
+import type { ZoomRatioProps } from '../../types';
 
 const circleImg =
   'data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIxOHB4IiBoZWlnaHQ9IjE4cHgiIHZlcnNpb249IjEuMSI+PGNpcmNsZSBjeD0iOSIgY3k9IjkiIHI9IjUiIHN0cm9rZT0iI2ZmZiIgZmlsbD0iIzAwN2RmYyIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+';
@@ -11,8 +13,21 @@ const handlerCommonProps = {
   height: '18',
 };
 
-class CropHandlers extends Component {
-  constructor(props) {
+class CropHandlers extends Component<ZoomRatioProps & { imgWidth: number; imgHeight: number }, { selectedHandler: string }> {
+  cropRegionInfo: HTMLElement | null;
+  canvas: HTMLCanvasElement;
+  canvasWidth: number;
+  canvasHeight: number;
+  canvasBbox: DOMRect;
+  svg: SVGSVGElement | null;
+  handlerX: number;
+  handlerY: number;
+  handlerWidth: number;
+  handlerHeight: number;
+  handlerMovingX: number;
+  handlerMovingY: number;
+
+  constructor(props: ZoomRatioProps & { imgWidth: number; imgHeight: number }) {
     super(props);
     this.state = {
       selectedHandler: '',
@@ -20,7 +35,7 @@ class CropHandlers extends Component {
 
     this.cropRegionInfo = null;
 
-    this.canvas = document.getElementById('canvas');
+    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
     this.canvasWidth = Math.round(props.imgWidth * props.zoomRatio);
     this.canvasHeight = Math.round(props.imgHeight * props.zoomRatio);
     this.canvasBbox = this.canvas.getBoundingClientRect();
@@ -35,40 +50,41 @@ class CropHandlers extends Component {
   }
 
   setCropRegionInfo = () => {
+    if (!this.cropRegionInfo) return;
     let regionInfoEle = this.cropRegionInfo.getElementsByClassName(
       'canvas-handler-region-info'
     );
-    let w = regionInfoEle[0];
-    let h = regionInfoEle[1];
-    let x = regionInfoEle[2];
-    let y = regionInfoEle[3];
+    let w = regionInfoEle[0] as HTMLElement;
+    let h = regionInfoEle[1] as HTMLElement;
+    let x = regionInfoEle[2] as HTMLElement;
+    let y = regionInfoEle[3] as HTMLElement;
 
     let ratio = this.props.zoomRatio;
     w.innerText = Math.round(this.handlerWidth / ratio) + ' px';
     h.innerText = Math.round(this.handlerHeight / ratio) + ' px';
-    x.innerText = Math.round((this.handlerX - 9) / ratio);
-    y.innerText = Math.round((this.handlerY - 9) / ratio);
+    x.innerText = String(Math.round((this.handlerX - 9) / ratio));
+    y.innerText = String(Math.round((this.handlerY - 9) / ratio));
   };
 
-  noGhosting = (evt) => evt.preventDefault();
+  noGhosting = (evt: Event) => evt.preventDefault();
 
   componentDidMount = () => {
     this.cropRegionInfo = document.getElementById('crop-region-info');
 
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
       imgHandlers[i].addEventListener('mousedown', this.noGhosting);
     }
   };
 
   componentWillUnmount = () => {
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
       imgHandlers[i].removeEventListener('mousedown', this.noGhosting);
     }
   };
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = (prevProps: ZoomRatioProps & { imgWidth: number; imgHeight: number }) => {
     let resizeRatio = this.props.zoomRatio / prevProps.zoomRatio;
     this.handlerX = Math.round((this.handlerX - 9) * resizeRatio + 9);
     this.handlerY = Math.round((this.handlerY - 9) * resizeRatio + 9);
@@ -101,13 +117,13 @@ class CropHandlers extends Component {
       [this.handlerX - 9, this.handlerY - 9 + this.handlerHeight * 0.5],
     ];
 
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
-      imgHandlers[i].setAttribute('x', imgHandlersXY[i][0]);
-      imgHandlers[i].setAttribute('y', imgHandlersXY[i][1]);
+      imgHandlers[i].setAttribute('x', String(imgHandlersXY[i][0]));
+      imgHandlers[i].setAttribute('y', String(imgHandlersXY[i][1]));
     }
 
-    let pathEle = this.svg.getElementsByTagName('path')[0];
+    let pathEle = this.svg!.getElementsByTagName('path')[0];
     let path = composePath(
       { x: 9, y: 9, width: this.canvasWidth, height: this.canvasHeight },
       {
@@ -119,41 +135,42 @@ class CropHandlers extends Component {
     );
     pathEle.setAttribute('d', path);
 
-    let grabbingEle = this.svg.getElementsByTagName('rect')[0];
-    grabbingEle.setAttribute('x', this.handlerX + 9);
-    grabbingEle.setAttribute('y', this.handlerY + 9);
-    grabbingEle.setAttribute('width', this.handlerWidth - 18);
-    grabbingEle.setAttribute('height', this.handlerHeight - 18);
+    let grabbingEle = this.svg!.getElementsByTagName('rect')[0];
+    grabbingEle.setAttribute('x', String(this.handlerX + 9));
+    grabbingEle.setAttribute('y', String(this.handlerY + 9));
+    grabbingEle.setAttribute('width', String(this.handlerWidth - 18));
+    grabbingEle.setAttribute('height', String(this.handlerHeight - 18));
   };
 
-  onMouseDown = (evt) => {
-    if (!evt.target.classList.contains('canvas-handler')) {
+  onMouseDown = (evt: React.MouseEvent<SVGSVGElement>) => {
+    const target = evt.target as SVGElement;
+    if (!target.classList.contains('canvas-handler')) {
       return;
     }
 
-    if (evt.target.id === 'handler-8') {
-      evt.target.style.cursor = 'grabbing';
+    if (target.id === 'handler-8') {
+      (target as unknown as HTMLElement).style.cursor = 'grabbing';
     }
 
     this.handlerMovingX = evt.clientX;
     this.handlerMovingY = evt.clientY;
     this.setState({
-      selectedHandler: evt.target.id,
+      selectedHandler: target.id,
     });
   };
 
-  onMouseUp = (evt) => {
+  onMouseUp = (evt: React.MouseEvent<SVGSVGElement>) => {
     if (this.state.selectedHandler) {
       if (this.state.selectedHandler === 'handler-8') {
-        evt.target.style.cursor = 'grab';
+        (evt.target as unknown as HTMLElement).style.cursor = 'grab';
       }
 
       this.setState({ selectedHandler: '' });
     }
   };
 
-  onMouseLeave = (evt) => {
-    let rect = this.svg.getElementsByTagName('rect')[0];
+  onMouseLeave = (_evt: React.MouseEvent<SVGSVGElement>) => {
+    let rect = this.svg!.getElementsByTagName('rect')[0];
     rect.style.cursor = 'grab';
 
     if (this.state.selectedHandler === '') {
@@ -163,7 +180,7 @@ class CropHandlers extends Component {
     this.setState({ selectedHandler: '' });
   };
 
-  onMouseMove = (evt) => {
+  onMouseMove = (evt: React.MouseEvent<SVGSVGElement>) => {
     if (!this.state.selectedHandler) {
       return;
     }
@@ -277,8 +294,8 @@ class CropHandlers extends Component {
     return (
       <svg
         id="canvas-handler"
-        ref={(s) => (this.svg = s)}
-        style={svgStyle}
+        ref={(s) => { this.svg = s; }}
+        style={svgStyle as React.CSSProperties}
         onMouseDown={this.onMouseDown}
         onMouseUp={this.onMouseUp}
         onMouseMove={this.onMouseMove}
@@ -371,14 +388,14 @@ class CropHandlers extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  imgWidth: state.imgStat.get('width'),
-  imgHeight: state.imgStat.get('height'),
+const mapStateToProps = (state: RootState) => ({
+  imgWidth: state.imgStat.get('width') as number,
+  imgHeight: state.imgStat.get('height') as number,
 });
 
 export default connect(mapStateToProps, null)(CropHandlers);
 
-const composePath = (outer, inner) => {
+const composePath = (outer: { x: number; y: number; width: number; height: number }, inner: { x: number; y: number; width: number; height: number }) => {
   let outerRect =
     'M' +
     outer.x +

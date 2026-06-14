@@ -3,9 +3,27 @@ import React, { Component } from 'react';
 import { setWidthHeight } from '../../../actions';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import type { RootState, AppDispatch } from '../../../store';
+import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-class Scale extends Component {
-  constructor(props) {
+interface ScaleState {
+  scaleFactor: number;
+}
+
+type ScaleProps = ToolSubtoolProps & {
+  imgWidth: number;
+  imgHeight: number;
+  setWidthHeight: (dims: { width: number; height: number }) => void;
+};
+
+class Scale extends Component<ScaleProps, ScaleState> {
+  wasm_img: WasmImage;
+  imgWidth: number;
+  imgHeight: number;
+  scaleRegion: HTMLDivElement | null;
+  changeApplied: boolean;
+
+  constructor(props: ScaleProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.imgWidth = props.imgWidth;
@@ -19,16 +37,17 @@ class Scale extends Component {
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
-  onScaleChange = (evt) => {
-    let eleID = evt.target.id;
+  onScaleChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    const target = evt.target as HTMLInputElement;
+    let eleID = target.id;
     let scaleFactor = 1;
     switch (eleID) {
       case 'transform-scale-setter': {
-        scaleFactor = parseInt(evt.target.value);
+        scaleFactor = parseInt(target.value);
         break;
       }
       case 'transform-scale-down-btn': {
@@ -48,12 +67,12 @@ class Scale extends Component {
     }
 
     this.wasm_img.scale(scaleFactor / 100);
-    this.props.redraw();
+    this.props.redraw?.();
     this.setState({ scaleFactor });
     this.changeApplied = false;
   };
 
-  onApply = (evt) => {
+  onApply = (_evt: React.MouseEvent<HTMLButtonElement>) => {
     this.imgWidth = Math.round((this.imgWidth * this.state.scaleFactor) / 100);
     this.imgHeight = Math.round(
       (this.imgHeight * this.state.scaleFactor) / 100
@@ -74,7 +93,7 @@ class Scale extends Component {
         <div
           id="scale-region-info"
           className="handler-info"
-          ref={(div) => (this.scaleRegion = div)}
+          ref={(div) => { this.scaleRegion = div; }}
           style={{
             display: 'flex',
             flexWrap: 'wrap',
@@ -189,10 +208,10 @@ class Scale extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  imgWidth: state.imgStat.get('width'),
-  imgHeight: state.imgStat.get('height'),
+const mapStateToProps = (state: RootState) => ({
+  imgWidth: state.imgStat.get('width') as number,
+  imgHeight: state.imgStat.get('height') as number,
 });
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ setWidthHeight }, dispatch);
 export default connect(mapStateToProps, mapDispatchToProps)(Scale);

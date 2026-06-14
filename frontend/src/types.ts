@@ -57,6 +57,11 @@ export interface WasmImage {
   flip_h: () => void;
   flip_v: () => void;
   scale: (factor: number) => void;
+  adjust_hsi: (h: number, s: number, t: number, g: boolean, i: boolean) => void;
+  auto_adjust_intensity: () => void;
+  manual_adjust_intensity: (c: number, b: number) => void;
+  blur: (radius: number) => void;
+  cartoonify: (a: number, b: number, c: number, d: boolean) => void;
 }
 
 // History state type
@@ -74,6 +79,14 @@ export interface EditorCallbacks {
 
 export interface RedrawProps {
   redraw?: (reposition?: boolean) => void;
+}
+
+export interface ToolSubtoolProps extends RedrawProps {
+  onSelectTool: (evt?: React.MouseEvent<Element> | '') => void;
+}
+
+export interface ToolSubtoolWithLoadProps extends ToolSubtoolProps {
+  loadImage?: EditorCallbacks['loadImage'];
 }
 
 export interface ZoomRatioProps {

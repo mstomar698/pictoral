@@ -1,6 +1,6 @@
 # Pictoral — Stabilization & Roadmap
 
-> **Last updated:** 2026-06-14 — OSS platform setup in progress on `feat/oss-platform-setup`
+> **Last updated:** 2026-06-14 — TypeScript migration complete (PR #9 merged)
 
 ## Objective
 Make Pictoral a reproducible, production-ready OSS web image editor with Rust/WASM core, TypeScript frontend, full test coverage, and PR-based CI/CD.
@@ -10,13 +10,13 @@ Make Pictoral a reproducible, production-ready OSS web image editor with Rust/WA
 | Area | Status |
 |------|--------|
 | Rust/WASM core | ✅ Compiles, `wasm-pack build` produces `pkg/` |
-| Frontend | ✅ React + Redux, TS migration in progress |
+| Frontend | ✅ React + Redux, fully TypeScript |
 | Unit tests | ✅ Rust (`cargo test`) + Vitest (reducers) |
 | E2E tests | ✅ Playwright (UI shell, navigation, canvas) |
 | CI/CD | ✅ GitHub Actions (rust, frontend, e2e jobs) |
 | Docs | ✅ ADRs, CONTRIBUTING, CLAUDE.md, Cursor skills |
 | Vulnerabilities | ✅ Legacy deps removed, packages upgraded |
-| OSS readiness | ✅ PR #2 merged; Phase 3 TS migration in progress |
+| OSS readiness | ✅ PR workflow + CI; TS migration complete |
 
 ## Architecture
 
@@ -70,12 +70,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 - [x] PR template + CONTRIBUTING guide
 
 ### Phase 3 — Stabilize & Improve (in progress)
-- [x] TypeScript migration: constants, actions, reducers, Main, SubHeader, Footer
-- [ ] Complete TypeScript migration (ToolPane, Canvas handlers)
+- [x] Complete TypeScript migration (all `frontend/src` modules)
 - [x] Rust unit tests for Image buffer operations
-- [ ] WASM integration tests with `wasm-bindgen-test`
+- [x] Shared ToolHeader component for tool pane accordions
+- [x] WASM integration tests with `wasm-bindgen-test`
 - [ ] Benchmarks for blur/resize
-- [ ] Memory/edge-case tests (tiny/large images)
+- [x] Memory/edge-case tests (tiny/large images)
 
 ### Phase 4 — Product & Delivery (future)
 - [ ] npm package for WASM artifacts
@@ -88,6 +88,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 | Task | Command |
 |------|---------|
 | Rust tests | `cargo test` |
+| WASM tests | `wasm-pack test --headless --chrome` |
 | WASM build | `wasm-pack build --target bundler --out-dir pkg` |
 | Dev server | `cd frontend && npm run dev` |
 | Typecheck | `cd frontend && npm run typecheck` |
@@ -97,5 +98,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 
 ## Notes / Risks
 - `pkg/` is gitignored — CI builds it; devs must run `wasm-pack build` locally
-- TypeScript migration is incremental; some `.js` files remain
 - Repo is private; treat `main` as protected until public launch

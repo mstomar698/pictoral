@@ -1,9 +1,18 @@
 import imgObj from '../../common/imgObj';
 import React, { Component } from 'react';
 import ApplyButton from '../common/ApplyButton';
+import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-export default class GaussianBlur extends Component {
-  constructor(props) {
+interface GaussianBlurState {
+  radius: number;
+  running: boolean;
+}
+
+export default class GaussianBlur extends Component<ToolSubtoolProps, GaussianBlurState> {
+  wasm_img: WasmImage;
+  changeApplied: boolean;
+
+  constructor(props: ToolSubtoolProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.state = {
@@ -17,20 +26,20 @@ export default class GaussianBlur extends Component {
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
   blur = () => {
     setTimeout(() => {
       this.wasm_img.blur(this.state.radius);
-      this.props.redraw();
+      this.props.redraw?.();
       this.setState({ running: false });
     }, 100);
   };
 
-  onChange = (evt) => {
-    let tgt = evt.target;
+  onChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    let tgt = evt.target as HTMLInputElement;
     let changeManner = tgt.dataset.valueChange;
     let radius;
     switch (changeManner) {
@@ -83,7 +92,7 @@ export default class GaussianBlur extends Component {
             }}
           >
             <div>Gaussian Blur</div>
-            <div style={{ paddingRight: '8px' }}>{this.state.saturation}</div>
+            <div style={{ paddingRight: '8px' }}>{this.state.radius}</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <button

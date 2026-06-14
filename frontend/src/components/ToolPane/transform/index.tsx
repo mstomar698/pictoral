@@ -5,17 +5,30 @@ import React, { Component } from 'react';
 import Crop from './Crop';
 import Scale from './Scale';
 import Rotate from './Rotate';
+import ToolHeader from '../common/ToolHeader';
+import type { AppDispatch } from '../../../store';
+import type { RedrawProps } from '../../../types';
 
-class TransformTool extends Component {
-  constructor(props) {
+interface TransformToolState {
+  selectedTool: string;
+}
+
+type TransformToolProps = RedrawProps & {
+  showCropHandlers: (show: boolean) => void;
+};
+
+class TransformTool extends Component<TransformToolProps, TransformToolState> {
+  constructor(props: TransformToolProps) {
     super(props);
-    this.state = {
-      selectedTool: '',
-    };
+    this.state = { selectedTool: '' };
   }
 
-  onSelectTool = (evt) => {
-    let toolID = !evt ? '' : evt.target.id;
+  onSelectTool = (evt?: React.MouseEvent<Element> | '') => {
+    if (!evt || typeof evt === 'string') {
+      this.setState({ selectedTool: '' });
+      return;
+    }
+    const toolID = (evt.target as HTMLElement).id;
     if (toolID === this.state.selectedTool) {
       return;
     }
@@ -58,34 +71,7 @@ class TransformTool extends Component {
   }
 }
 
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ showCropHandlers }, dispatch);
-export default connect(null, mapDispatchToProps)(TransformTool);
 
-const ToolHeader = (props) => {
-  let selected = props.selectedTool === props.toolID;
-  let svgStyle = selected
-    ? { transform: 'rotate(180deg)' }
-    : { transform: 'rotate(0deg)' };
-  let selectedStyle = selected ? { color: 'darkorange' } : null;
-  return (
-    <div className="editor-header-wrapper">
-      <div id={props.toolID} className="editor-header" onClick={props.onSelect}>
-        <span style={selectedStyle}>{props.label}</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="8"
-          className="svg-down-arrow"
-          style={svgStyle}
-        >
-          <path
-            fill="#CCC"
-            d="M7.19 7.54L0 .34.34 0l6.85 6.85L14.04 0l.34.34-7.19 7.2z"
-          />
-        </svg>
-      </div>
-      {selected ? props.children : null}
-    </div>
-  );
-};
+export default connect(null, mapDispatchToProps)(TransformTool);
