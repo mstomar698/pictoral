@@ -1,6 +1,6 @@
 use cfg_if::cfg_if;
 
-#[cfg(test)]
+#[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
     #[test]
     fn panic_hook_is_callable() {
