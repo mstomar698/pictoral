@@ -4,10 +4,13 @@ const path = require('path');
 
 const wasmPkgPath = path.resolve(__dirname, '..');
 
+const basePath = (process.env.BASE_PATH || '').replace(/\/$/, '');
+const publicPath = basePath ? `${basePath}/` : '/';
+
 module.exports = {
   entry: ['./bootstrap.js'],
   output: {
-    publicPath: '/',
+    publicPath,
     path: path.resolve(__dirname, 'public'),
     filename: 'bootstrap.js',
   },
@@ -86,7 +89,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       PRODUCTION: JSON.stringify(true),
-      URL_PATH: JSON.stringify(''),
+      URL_PATH: JSON.stringify(basePath),
     }),
     new CopyWebpackPlugin({
       patterns: [{ from: 'index.html' }],
