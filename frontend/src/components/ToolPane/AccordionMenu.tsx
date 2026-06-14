@@ -7,10 +7,11 @@ import TextTool from './text';
 import TransformTool from './transform';
 import type { EditorCallbacks } from '../../types';
 
-interface AccordionMenuProps extends EditorCallbacks {
+interface AccordionMenuProps {
   selectedTool: string | null;
   close: (evt: React.MouseEvent) => void;
   zoomRatio: number;
+  loadImage: EditorCallbacks['loadImage'];
 }
 
 class AccordionMenu extends Component<AccordionMenuProps> {

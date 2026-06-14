@@ -2,28 +2,35 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import toolIcons from './toolIcons';
 import AccordionMenu from './AccordionMenu';
+import type { RootState } from '../../store';
+import type { EditorCallbacks } from '../../types';
 
-class ToolPane extends Component {
-  constructor(props) {
-    super(props);
-    this.accordion = null;
-    this.state = {};
-  }
+interface ToolPaneProps {
+  onSelectTool: (id: string | null) => void;
+  selectedTool: string | null;
+  loadImage: EditorCallbacks['loadImage'];
+  zoomRatio: number;
+}
 
-  componentDidUpdate = (prevProps, prevState) => {
-    if (!this.props.selectedTool) {
+class ToolPane extends Component<ToolPaneProps> {
+  accordion: HTMLDivElement | null = null;
+
+  componentDidUpdate = () => {
+    if (!this.props.selectedTool && this.accordion) {
       this.accordion.style.transform = 'translate(0px, 0px)';
     }
   };
 
-  onSelectTool = (evt) => {
-    let parent = evt.target.closest('.tool-icon');
-    if (parent) {
+  onSelectTool = (evt: React.MouseEvent) => {
+    const parent = (evt.target as HTMLElement).closest('.tool-icon') as HTMLElement | null;
+    if (parent && this.accordion) {
       this.props.onSelectTool(parent.id);
       this.accordion.style.transform = 'translate(256px, 0px)';
     } else {
       this.props.onSelectTool(null);
-      this.accordion.style.transform = 'translate(0px, 0px)';
+      if (this.accordion) {
+        this.accordion.style.transform = 'translate(0px, 0px)';
+      }
     }
   };
 
@@ -31,7 +38,7 @@ class ToolPane extends Component {
     return (
       <div style={{ display: 'flex', height: 'calc(100vh - 56px)' }}>
         <div
-          ref={(div) => (this.accordion = div)}
+          ref={(div) => { this.accordion = div; }}
           id="tool-prop-list"
           style={{
             width: '256px',
@@ -48,7 +55,6 @@ class ToolPane extends Component {
             zoomRatio={this.props.zoomRatio}
             loadImage={this.props.loadImage}
           />
-          {/* passing null(or passing nothing) close the AccordionMenu(or hide it by translating it to the left), passing toolID translate it into the view */}
         </div>
         <ul
           style={{
@@ -97,18 +103,27 @@ class ToolPane extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  zoomRatio: state.imgStat.get('zoomRatio'),
+const mapStateToProps = (state: RootState) => ({
+  zoomRatio: state.imgStat.get('zoomRatio') as number,
 });
-export default connect(mapStateToProps, null)(ToolPane);
 
-const iconStyle = {
+export default connect(mapStateToProps)(ToolPane);
+
+const iconStyle: React.CSSProperties = {
   width: '56px',
   height: '44px',
   padding: 0,
   cursor: 'pointer',
 };
-const ToolIcon = (props) => (
+
+interface ToolIconProps {
+  id: string;
+  iconID: string;
+  onClick: (evt: React.MouseEvent) => void;
+  selected: boolean;
+}
+
+const ToolIcon: React.FC<ToolIconProps> = (props) => (
   <li
     style={iconStyle}
     onClick={props.onClick}
