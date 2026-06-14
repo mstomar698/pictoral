@@ -1,5 +1,13 @@
 use cfg_if::cfg_if;
 
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn panic_hook_is_callable() {
+        super::set_panic_hook();
+    }
+}
+
 cfg_if! {
     if #[cfg(feature = "console_error_panic_hook")] {
         extern crate console_error_panic_hook;

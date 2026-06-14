@@ -40,6 +40,7 @@ export interface WasmImage {
   height: () => number;
   width_bk: () => number;
   height_bk: () => number;
+  pixels_data: () => Uint8Array;
   pixels: () => number;
   pixels_bk: Uint8Array;
   reuse: (width: number, height: number, data: Uint8Array) => void;

@@ -7,5 +7,5 @@ if ! command -v wasm-pack >/dev/null 2>&1; then
 fi
 
 echo "Building WASM package into pkg/ (repo root)..."
-wasm-pack build --target web --out-dir pkg
+wasm-pack build --target bundler --out-dir pkg
 echo "WASM build complete: pkg/ contains JS + .wasm files"

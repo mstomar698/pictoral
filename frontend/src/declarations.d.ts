@@ -8,6 +8,7 @@ declare module 'image-editor-bk-rust/image_editor' {
     width_bk(): number;
     height_bk(): number;
     pixels(): number;
+    pixels_data(): Uint8Array;
     reuse(width: number, height: number, data: Uint8Array): void;
     apply_change(): void;
     discard_change(): void;

@@ -1,75 +1,99 @@
 # Pictoral — Stabilization & Roadmap
 
+> **Last updated:** 2026-06-14 — OSS platform setup in progress on `feat/oss-platform-setup`
+
 ## Objective
-Make Pictoral a reproducible, easy-to-build web image editor by: producing a stable WASM build for the Rust core, adding a minimal frontend to exercise the WASM package, and adding CI and docs so other contributors can reproduce and extend the project.
+Make Pictoral a reproducible, production-ready OSS web image editor with Rust/WASM core, TypeScript frontend, full test coverage, and PR-based CI/CD.
 
-## Current status (quick facts)
-- Rust core crate (`image-editor`) compiles for the host (dev profile) — native build succeeded locally.
-- `wasm-pack` is not present in this environment; a wasm packaging step is required to produce JS bindings.
-- The `frontend/` directory is currently empty (no React/JS app checked in).
-- `Cargo.toml` was updated to bump `wasm-bindgen` to a compatible release to allow compilation.
+## Current status
 
-## Assumptions
-- Contributor has `rustup` and `cargo` installed.
-- For convenient WASM packaging we prefer `wasm-pack`; alternatively `cargo build --target wasm32-unknown-unknown` + `wasm-bindgen-cli` works.
+| Area | Status |
+|------|--------|
+| Rust/WASM core | ✅ Compiles, `wasm-pack build` produces `pkg/` |
+| Frontend | ✅ React + Redux, TS migration in progress |
+| Unit tests | ✅ Rust (`cargo test`) + Vitest (reducers) |
+| E2E tests | ✅ Playwright (UI shell, navigation, canvas) |
+| CI/CD | ✅ GitHub Actions (rust, frontend, e2e jobs) |
+| Docs | ✅ ADRs, CONTRIBUTING, CLAUDE.md, Cursor skills |
+| Vulnerabilities | ✅ Legacy deps removed, packages upgraded |
+| OSS readiness | 🔄 PR workflow enforced; branch protection pending public release |
 
-## Phase 0 — Triage & Reproducible Build
-1. Add clear reproducible build commands and small helper scripts.
-   - Add `Makefile` or `scripts/` with targets: `make build-native`, `make build-wasm`, `make clean`.
-   - Document exact tool versions used (Rust stable, wasm-pack version).
-2. Ensure required Rust targets/tools installed (commands to run):
-   - `rustup target add wasm32-unknown-unknown`
-   - `cargo install wasm-bindgen-cli` (optional)
-   - `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh` (to install `wasm-pack`)
-3. Produce a wasm artifact for consumption by JS — automated:
-   - `wasm-pack build --target web --out-dir frontend/pkg`
-   - If `wasm-pack` is unavailable: `cargo build --target wasm32-unknown-unknown --release` then `wasm-bindgen --out-dir frontend/pkg --target web target/wasm32-unknown-unknown/release/image_editor.wasm`
+## Architecture
 
-## Phase 1 — Minimal Frontend & Integration
-1. Add a minimal `demo/` or `frontend/` scaffold to load the produced `pkg/`:
-   - Simple HTML page with `<input type="file">` and canvas to show images.
-   - Minimal JS to instantiate `wasm_bindgen` and call `Image::new`/manipulation functions from Rust.
-2. Add an npm `package.json` for dev server (optional). Quick start: `serve`, `http-server`, or simple `parcel/webpack` dev script.
-3. Add example flows: load image, apply a single filter (blur), display result, save/export.
+```
+Browser (React/Redux/TS)
+    ↓ webpack alias
+pkg/ (wasm-bindgen JS glue)
+    ↓
+image_editor_bg.wasm (Rust image algorithms)
+```
 
-## Phase 2 — Tests & CI
-1. Add `wasm-bindgen-test`-based tests for core numerical routines (where feasible).
-2. Add a GitHub Actions workflow that:
-   - Installs Rust toolchain and adds wasm target.
-   - Installs `wasm-pack` (or `wasm-bindgen-cli`).
-   - Runs `wasm-pack build` and builds the frontend (if present).
-   - Optionally publishes a built demo artifact or deploys to GitHub Pages for a nightly demo.
+See [docs/adr/](docs/adr/) for decision records.
 
-## Phase 3 — Stabilize & Improve
-1. Add undo/redo non-destructive editing and robust state management for image buffers.
-2. Add benchmarks and profiling for heavy ops (blur, resize) and optimize hotspots.
-3. Add memory/edge-case tests (tiny images, very large images) and defensive checks.
+## Quick start
 
-## Phase 4 — Product & Delivery
-1. Document API (Rust->WASM) surface and provide a small JS wrapper to simplify usage.
-2. Publish as an npm-scoped package or static WASM artifacts for consumption.
-3. Prepare a contributor guide and a release checklist.
+```bash
+# Build WASM
+wasm-pack build --target bundler --out-dir pkg
 
-## First concrete tasks (prioritized)
-1. Add `Makefile` + `scripts/` and update `README.md` with exact commands.
-2. Install `wasm-pack` locally and run `wasm-pack build --target web --out-dir frontend/pkg` to produce `pkg/`.
-3. Add a minimal `frontend/demo/index.html` + `demo/main.js` showing how to load the WASM and call a sample filter.
-4. Add a GitHub Actions workflow to build WASM and run `cargo test`.
+# Frontend
+cd frontend && npm ci && npm run dev
+# → http://localhost:3000
+```
 
-## Local run commands (quick)
-1. Build native (quick):
-   - `cargo build --manifest-path Cargo.toml`
-2. Build WASM (recommended):
-   - `wasm-pack build --target web --out-dir frontend/pkg`
-3. Serve demo:
-   - `cd frontend && npx http-server .`
+## Development workflow
+
+1. Branch from `main`: `git checkout -b feat/my-change`
+2. Verify: `cargo test`, `wasm-pack build`, `cd frontend && npm run typecheck && npm run test && npm run e2e`
+3. Open PR: `gh pr create --fill`
+4. Wait for CI (3 jobs) → merge
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
+
+## Phase tracker
+
+### Phase 0 — Triage & Reproducible Build ✅
+- [x] Makefile + `scripts/build-wasm.sh`
+- [x] `.gitignore` for `target/`, `pkg/`, `node_modules/`
+- [x] Documented tool versions in README
+
+### Phase 1 — Frontend & Integration ✅
+- [x] React frontend with WASM integration
+- [x] Webpack dev server + production build
+- [x] Undo/redo history in `imgObj.ts`
+
+### Phase 2 — Tests & CI ✅
+- [x] `cargo test` for Rust
+- [x] Vitest unit tests
+- [x] Playwright E2E tests
+- [x] GitHub Actions CI pipeline
+- [x] PR template + CONTRIBUTING guide
+
+### Phase 3 — Stabilize & Improve (next)
+- [ ] Complete TypeScript migration (remaining `.js` components)
+- [ ] WASM integration tests with `wasm-bindgen-test`
+- [ ] Benchmarks for blur/resize
+- [ ] Memory/edge-case tests (tiny/large images)
+
+### Phase 4 — Product & Delivery (future)
+- [ ] npm package for WASM artifacts
+- [ ] GitHub Pages demo deploy
+- [ ] Public release with branch protection
+- [ ] Contributor onboarding guide
+
+## Local commands
+
+| Task | Command |
+|------|---------|
+| Rust tests | `cargo test` |
+| WASM build | `wasm-pack build --target bundler --out-dir pkg` |
+| Dev server | `cd frontend && npm run dev` |
+| Typecheck | `cd frontend && npm run typecheck` |
+| Unit tests | `cd frontend && npm run test` |
+| E2E | `cd frontend && npm run e2e` |
+| Production | `cd frontend && npm run build` |
 
 ## Notes / Risks
-- The frontend is missing; to make a runnable demo we must either import an existing frontend or scaffold a minimal demo.
-- Installing `wasm-pack` or `wasm-bindgen-cli` is required on CI/dev machines.
-
----
-
-If you want, I can:
-- scaffold `frontend/demo` (HTML + JS) that loads the WASM and demonstrates `scale` and `blur` operations, or
-- add `Makefile` + GitHub Actions workflow to automate building and publishing the demo.
+- `pkg/` is gitignored — CI builds it; devs must run `wasm-pack build` locally
+- TypeScript migration is incremental; some `.js` files remain
+- Repo is private; treat `main` as protected until public launch

@@ -1,5 +1,4 @@
 import imgObj from '../common/imgObj';
-import {memory} from 'image-editor-bk-rust/image_editor_bg.wasm';
 import React, { Component } from 'react';
 
 import BasicTool from './basic';
@@ -18,8 +17,7 @@ class AccordionMenu extends Component {
     let wasm_img = imgObj.get_wasm_img();
     let w = wasm_img.width();
     let h = wasm_img.height();
-    let pixelPtr = wasm_img.pixels();
-    const pixels = new Uint8Array(memory.buffer, pixelPtr, w * h * 4);
+    const pixels = wasm_img.pixels_data();
     createImageBitmap(new ImageData(new Uint8ClampedArray(pixels), w, h)).then(
       (img) => {
         imgObj.imgBuff = img;

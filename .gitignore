@@ -1,8 +1,45 @@
-pkg/**
-target/**
-node_modules
-dump.txt
+# Rust / WASM
+/target/
+/pkg/
+**/*.rs.bk
+
+# Node
+node_modules/
+frontend/node_modules/
+# Webpack build output (keep static assets like img/)
+frontend/public/*.js
+frontend/public/*.wasm
+frontend/public/*.LICENSE.txt
+frontend/public/index.html
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+frontend/dist/
+dist/
+*.wasm.map
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
 .DS_Store
-**/.DS_Store
-.gitignore
-frontend/.gitignore
+Thumbs.db
+
+# Test artifacts
+test-results/
+playwright-report/
+blob-report/
+coverage/
+.nyc_output/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Misc
+*.log
+.cache/

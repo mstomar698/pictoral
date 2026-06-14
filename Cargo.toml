@@ -2,6 +2,9 @@
 name = "image-editor"
 version = "0.1.0"
 edition = "2021"
+description = "Rust/WASM image processing core for Pictoral"
+repository = "https://github.com/mstomar698/pictoral"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

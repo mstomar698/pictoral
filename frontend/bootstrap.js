@@ -1,3 +1,3 @@
-import('./src/App.js').catch((e) =>
-  console.error('Error importing `App.js`:', e)
+import('./src/App.tsx').catch((e) =>
+  console.error('Error importing `App.tsx`:', e)
 );

@@ -83,6 +83,12 @@ impl Image {
     pub fn pixels(&self) -> *const u8 {
         self.pixels.as_ptr()
     }
+
+    /// Returns a copy of the current pixel buffer as RGBA bytes (for JS canvas rendering).
+    pub fn pixels_data(&self) -> Vec<u8> {
+        self.pixels.clone()
+    }
+
     pub fn width(&self) -> u32 { self.width }
     pub fn height(&self) -> u32 { self.height }
     pub fn width_bk(&self) -> u32 { self.width_bk }
