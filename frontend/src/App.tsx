@@ -9,7 +9,7 @@ import Main from './components/Main';
 import Auth from './components/Auth';
 
 const App: React.FC = () => (
-  <BrowserRouter>
+  <BrowserRouter basename={URL_PATH || undefined}>
     <Provider store={store}>
       <Routes>
         <Route path="/" element={<Main />} />
