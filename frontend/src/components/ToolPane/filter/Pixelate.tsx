@@ -4,9 +4,30 @@ import ApplyButton from '../common/ApplyButton';
 import { bindActionCreators } from 'redux';
 import { showPixelateHandlers } from '../../../actions';
 import { connect } from 'react-redux';
+import type { Map } from 'immutable';
+import type { RootState, AppDispatch } from '../../../store';
+import type { Position, ToolSubtoolProps, WasmImage } from '../../../types';
 
-class Pixelate extends Component {
-  constructor(props) {
+interface PixelateState {
+  blockSize: number;
+  handlerVisible: boolean;
+  blurType: string;
+  running: boolean;
+}
+
+type PixelateProps = ToolSubtoolProps & {
+  position: Map<keyof Position, number>;
+  imgWidth: number;
+  imgHeight: number;
+  showHandler: (visible: boolean) => void;
+};
+
+class Pixelate extends Component<PixelateProps, PixelateState> {
+  wasm_img: WasmImage;
+  region: Position;
+  changeApplied: boolean;
+
+  constructor(props: PixelateProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.state = {
@@ -47,7 +68,7 @@ class Pixelate extends Component {
       }
 
       this.wasm_img.pixelate(x, y, width, height, blockSize, blurType);
-      this.props.redraw();
+      this.props.redraw?.();
       this.setState({ running: false });
     }, 100);
   };
@@ -57,15 +78,15 @@ class Pixelate extends Component {
     this.props.showHandler(false);
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
   componentDidUpdate = () => {
-    let x = this.props.position.get('x');
-    let y = this.props.position.get('y');
-    let width = this.props.position.get('width');
-    let height = this.props.position.get('height');
+    let x = this.props.position.get('x') as number;
+    let y = this.props.position.get('y') as number;
+    let width = this.props.position.get('width') as number;
+    let height = this.props.position.get('height') as number;
 
     if (
       x === this.region.x &&
@@ -84,8 +105,8 @@ class Pixelate extends Component {
     this.pixelate();
   };
 
-  onChange = (evt) => {
-    let tgt = evt.target;
+  onChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    let tgt = evt.target as HTMLInputElement;
     let changeManner = tgt.dataset.valueChange;
     let blockSize = this.state.blockSize;
     let blurType = this.state.blurType;
@@ -136,7 +157,7 @@ class Pixelate extends Component {
     this.props.onSelectTool('');
   };
 
-  toggleHandlers = (evt) => {
+  toggleHandlers = (evt: React.ChangeEvent<HTMLInputElement>) => {
     let handler = document.getElementById('canvas-handler');
     if (handler) {
       handler.style.visibility = evt.target.checked ? 'visible' : 'hidden';
@@ -283,11 +304,11 @@ class Pixelate extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  position: state.pixelateHandlers.get('position'),
-  imgWidth: state.imgStat.get('width'),
-  imgHeight: state.imgStat.get('height'),
+const mapStateToProps = (state: RootState) => ({
+  position: state.pixelateHandlers.get('position') as Map<keyof Position, number>,
+  imgWidth: state.imgStat.get('width') as number,
+  imgHeight: state.imgStat.get('height') as number,
 });
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ showHandler: showPixelateHandlers }, dispatch);
 export default connect(mapStateToProps, mapDispatchToProps)(Pixelate);

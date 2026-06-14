@@ -4,9 +4,22 @@ import icons from './buttonIcons';
 import { bindActionCreators } from 'redux';
 import { setWidthHeight } from '../../../actions';
 import { connect } from 'react-redux';
+import type { RootState, AppDispatch } from '../../../store';
+import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-class Rotate extends Component {
-  constructor(props) {
+type RotateProps = ToolSubtoolProps & {
+  imgWidth: number;
+  imgHeight: number;
+  setWidthHeight: (dims: { width: number; height: number }) => void;
+};
+
+class Rotate extends Component<RotateProps> {
+  wasm_img: WasmImage;
+  changeApplied: boolean;
+  switched: boolean;
+  op: Record<string, () => void>;
+
+  constructor(props: RotateProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.state = {};
@@ -33,14 +46,14 @@ class Rotate extends Component {
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
-  onClick = (evt) => {
-    this.op[evt.target.id]();
+  onClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    this.op[evt.currentTarget.id]();
     this.changeApplied = false;
-    this.props.redraw();
+    this.props.redraw?.();
   };
 
   onApply = () => {
@@ -108,10 +121,10 @@ class Rotate extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  imgWidth: state.imgStat.get('width'),
-  imgHeight: state.imgStat.get('height'),
+const mapStateToProps = (state: RootState) => ({
+  imgWidth: state.imgStat.get('width') as number,
+  imgHeight: state.imgStat.get('height') as number,
 });
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ setWidthHeight }, dispatch);
 export default connect(mapStateToProps, mapDispatchToProps)(Rotate);
