@@ -72,6 +72,14 @@ export interface EditorCallbacks {
   loadImage: (src?: string | Blob) => void;
 }
 
+export interface RedrawProps {
+  redraw?: (reposition?: boolean) => void;
+}
+
+export interface ZoomRatioProps {
+  zoomRatio: number;
+}
+
 export interface DefaultComponentProps {
   className?: string;
   style?: React.CSSProperties;
