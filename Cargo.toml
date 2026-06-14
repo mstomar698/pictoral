@@ -30,6 +30,11 @@ features = [
 
 [dev-dependencies]
 wasm-bindgen-test = "0.2"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "image_ops"
+harness = false
 
 [profile.release]
 opt-level = "s"
