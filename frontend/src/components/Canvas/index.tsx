@@ -2,32 +2,38 @@ import imgObj from '../common/imgObj';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { setZoomRatio } from '../../actions';
-import { connect } from 'react-redux';
+import { connect, type ConnectedProps } from 'react-redux';
 import CropHandlers from './CropHandlers';
 import PixelateHandlers from './PixelateHandlers';
 import MiniHandlers from './MiniaturizeHandlers';
+import type { RootState, AppDispatch } from '../../store';
+import type { EditorCallbacks } from '../../types';
 
-class Canvas extends Component {
-  constructor(props) {
-    super(props);
-    this.canvas = null;
-    this.ctx = null;
-    this.state = {};
-  }
+interface CanvasOwnProps extends EditorCallbacks {
+  containerWidth: string;
+}
 
-  componentDidUpdate = (prevProps) => {
+type CanvasProps = ConnectedProps<typeof connector> & CanvasOwnProps;
+
+class Canvas extends Component<CanvasProps> {
+  canvas: HTMLCanvasElement | null = null;
+  ctx: CanvasRenderingContext2D | null = null;
+
+  componentDidUpdate = (prevProps: CanvasProps) => {
     if (this.props.zoomRatio === 0) {
       return;
     }
 
-    if (this.props.zoomRatio !== prevProps.zoomRatio) {
+    if (this.props.zoomRatio !== prevProps.zoomRatio && this.ctx && imgObj.imgBuff) {
       this.props.resizeCanvas(false);
       this.ctx.drawImage(imgObj.imgBuff, 0, 0);
     }
   };
 
   componentDidMount = () => {
-    this.ctx = this.canvas.getContext('2d');
+    if (this.canvas) {
+      this.ctx = this.canvas.getContext('2d');
+    }
     this.props.loadImage();
   };
 
@@ -46,13 +52,10 @@ class Canvas extends Component {
       >
         <canvas
           id="canvas"
-          ref={(canvas) => (this.canvas = canvas)}
-          style={{ position: 'absolute', margin: '20px', }}
+          ref={(canvas) => { this.canvas = canvas; }}
+          style={{ position: 'absolute', margin: '20px' }}
         />
-        {/*<canvas id='canvas' ref={canvas => this.canvas = canvas} style={{position: 'absolute'}} />*/}
-        {/* canvas must have a margin of 20px(larger than imgHandler radius is enough, otherwise the upper part of imgHandler of large canvas will be "cut off" */}
 
-        {/* if new handlers are to be created, don't forget to update fn resizeCanvas() in Main */}
         {this.props.cropHandlersVisible ? (
           <CropHandlers zoomRatio={this.props.zoomRatio} />
         ) : null}
@@ -62,18 +65,20 @@ class Canvas extends Component {
         {this.props.miniHandlersVisible ? (
           <MiniHandlers zoomRatio={this.props.zoomRatio} />
         ) : null}
-        {/* todo: I just copy and paste to create the <PixelateHandlers />, consider refactoring them into a <Handler /> */}
       </div>
     );
   }
 }
 
-const mapStateToProps = (state) => ({
-  zoomRatio: state.imgStat.get('zoomRatio'),
+const mapStateToProps = (state: RootState) => ({
+  zoomRatio: state.imgStat.get('zoomRatio') as number,
   cropHandlersVisible: state.cropHandlersVisible,
-  pixelateHandlersVisible: state.pixelateHandlers.get('visible'),
-  miniHandlersVisible: state.miniHandlers.get('visible'),
+  pixelateHandlersVisible: Boolean(state.pixelateHandlers.get('visible')),
+  miniHandlersVisible: Boolean(state.miniHandlers.get('visible')),
 });
-const mapDispatchToProps = (dispatch) =>
+
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ setZoomRatio }, dispatch);
-export default connect(mapStateToProps, mapDispatchToProps)(Canvas);
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+export default connector(Canvas);

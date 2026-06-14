@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
-class Layers extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
 
+class Layers extends Component {
   render() {
     return <div>layers</div>;
   }
