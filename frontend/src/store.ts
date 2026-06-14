@@ -21,7 +21,8 @@ const initialState = {
 
 const store = configureStore({
   reducer: reducers,
-  preloadedState: initialState,
+  // Immutable preloaded state is compatible at runtime; RTK types expect plain objects
+  preloadedState: initialState as ReturnType<typeof reducers>,
   devTools: process.env.NODE_ENV !== 'production',
 });
 
