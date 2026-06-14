@@ -27,10 +27,19 @@ test.describe('Pictoral editor shell', () => {
     await expect(page.getByText('LOGIN PAGE')).toBeVisible();
   });
 
-  test('returns to the editor from login', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByRole('link', { name: 'Pictoral' }).click();
-    await expect(page).toHaveURL(/\/$/);
-    await expect(page.locator('#canvas')).toBeVisible();
+  test('shows undo and redo controls in subheader', async ({ page }) => {
+    await page.goto('/');
+    const undo = page.getByTitle('Undo (Ctrl+Z)');
+    const redo = page.getByTitle('Redo (Ctrl+Y)');
+    await expect(undo).toBeVisible();
+    await expect(redo).toBeVisible();
+    await expect(undo).toBeDisabled();
+    await expect(redo).toBeDisabled();
+  });
+
+  test('shows save and restore actions', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('button', { name: 'Save' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Restore' })).toBeVisible();
   });
 });

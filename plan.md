@@ -16,7 +16,7 @@ Make Pictoral a reproducible, production-ready OSS web image editor with Rust/WA
 | CI/CD | ✅ GitHub Actions (rust, frontend, e2e jobs) |
 | Docs | ✅ ADRs, CONTRIBUTING, CLAUDE.md, Cursor skills |
 | Vulnerabilities | ✅ Legacy deps removed, packages upgraded |
-| OSS readiness | 🔄 PR workflow enforced; branch protection pending public release |
+| OSS readiness | ✅ PR #2 merged; Phase 3 TS migration in progress |
 
 ## Architecture
 
@@ -69,8 +69,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 - [x] GitHub Actions CI pipeline
 - [x] PR template + CONTRIBUTING guide
 
-### Phase 3 — Stabilize & Improve (next)
-- [ ] Complete TypeScript migration (remaining `.js` components)
+### Phase 3 — Stabilize & Improve (in progress)
+- [x] TypeScript migration: constants, actions, reducers, Main, SubHeader, Footer
+- [ ] Complete TypeScript migration (ToolPane, Canvas handlers)
+- [x] Rust unit tests for Image buffer operations
 - [ ] WASM integration tests with `wasm-bindgen-test`
 - [ ] Benchmarks for blur/resize
 - [ ] Memory/edge-case tests (tiny/large images)
