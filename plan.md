@@ -74,20 +74,21 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 - [x] Rust unit tests for Image buffer operations
 - [x] Shared ToolHeader component for tool pane accordions
 - [x] WASM integration tests with `wasm-bindgen-test`
-- [ ] Benchmarks for blur/resize
+- [x] Benchmarks for blur/resize (`cargo bench --bench image_ops`)
 - [x] Memory/edge-case tests (tiny/large images)
 
-### Phase 4 — Product & Delivery (future)
-- [ ] npm package for WASM artifacts
-- [ ] GitHub Pages demo deploy
-- [ ] Public release with branch protection
-- [ ] Contributor onboarding guide
+### Phase 4 — Product & Delivery (in progress)
+- [x] npm package scaffolding for WASM artifacts (`@pictoral/wasm-core`)
+- [x] GitHub Pages demo deploy workflow
+- [x] Public release checklist (`docs/oss-release.md`)
+- [ ] Enable branch protection on `main` (manual, before public launch)
 
 ## Local commands
 
 | Task | Command |
 |------|---------|
 | Rust tests | `cargo test` |
+| Benchmarks | `cargo bench --bench image_ops` |
 | WASM tests | `wasm-pack test --headless --chrome` |
 | WASM build | `wasm-pack build --target bundler --out-dir pkg` |
 | Dev server | `cd frontend && npm run dev` |

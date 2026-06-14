@@ -1,4 +1,4 @@
-.PHONY: build-native build-wasm serve clean test test-wasm e2e typecheck
+.PHONY: build-native build-wasm serve clean test test-wasm bench e2e typecheck
 
 build-native:
 	cargo build --manifest-path Cargo.toml
@@ -20,6 +20,9 @@ test:
 
 test-wasm:
 	wasm-pack test --headless --chrome
+
+bench:
+	cargo bench --bench image_ops
 
 e2e:
 	cd frontend && npm run e2e
