@@ -61,7 +61,7 @@ class Crop extends Component<CropProps> {
         <div
           id="crop-region-info"
           className="handler-info"
-          ref={(div) => (this.cropRegion = div)}
+          ref={(div) => { this.cropRegion = div; }}
           style={{
             display: 'flex',
             flexWrap: 'wrap',

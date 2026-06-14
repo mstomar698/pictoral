@@ -220,7 +220,7 @@ class MiniHandlers extends Component<ZoomRatioProps & { imgWidth: number; imgHei
     return (
       <svg
         id="canvas-handler"
-        ref={(s) => (this.svg = s)}
+        ref={(s) => { this.svg = s; }}
         style={svgStyle as React.CSSProperties}
         onMouseDown={this.onMouseDown}
         onMouseUp={this.onMouseUp}
