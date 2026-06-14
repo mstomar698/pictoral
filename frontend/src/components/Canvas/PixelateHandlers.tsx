@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setPixelateHandlersPosition } from '../../actions';
+import type { RootState, AppDispatch } from '../../store';
+import type { Position, ZoomRatioProps } from '../../types';
 import {
   CIRCLE_RADIUS,
   HANDLER_COMMON_PROPS,
@@ -11,11 +13,22 @@ import {
   MIN_HANDLER_RECT_HEIGHT,
 } from '../../constants/handler';
 
-class PixelateHandlers extends Component {
-  constructor(props) {
+class PixelateHandlers extends Component<ZoomRatioProps & { imgWidth: number; imgHeight: number; setPixelateHandlersPosition: (rect: Position) => void }, { selectedHandler: string }> {
+  canvas: HTMLCanvasElement;
+  canvasWidth: number;
+  canvasHeight: number;
+  svg: SVGSVGElement | null;
+  handlerWidth: number;
+  handlerHeight: number;
+  handlerX: number;
+  handlerY: number;
+  handlerMovingX: number;
+  handlerMovingY: number;
+
+  constructor(props: ZoomRatioProps & { imgWidth: number; imgHeight: number; setPixelateHandlersPosition: (rect: Position) => void }) {
     super(props);
     this.state = { selectedHandler: '' };
-    this.canvas = document.getElementById('canvas');
+    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
     this.canvasWidth = Math.round(props.imgWidth * props.zoomRatio);
     this.canvasHeight = Math.round(props.imgHeight * props.zoomRatio);
     this.svg = null;
@@ -41,23 +54,23 @@ class PixelateHandlers extends Component {
     this.props.setPixelateHandlersPosition({ x, y, width, height });
   };
 
-  noGhosting = (evt) => evt.preventDefault();
+  noGhosting = (evt: Event) => evt.preventDefault();
   componentDidMount = () => {
     this.setPixelateRegion();
 
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
       imgHandlers[i].addEventListener('mousedown', this.noGhosting);
     }
   };
   componentWillUnmount = () => {
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
       imgHandlers[i].removeEventListener('mousedown', this.noGhosting);
     }
   };
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = (prevProps: ZoomRatioProps & { imgWidth: number; imgHeight: number }) => {
     let resizeRatio = this.props.zoomRatio / prevProps.zoomRatio;
     this.handlerX = Math.round(
       (this.handlerX - CIRCLE_RADIUS) * resizeRatio + CIRCLE_RADIUS
@@ -91,13 +104,13 @@ class PixelateHandlers extends Component {
       [xOffset, yOffset + h * 0.5],
     ];
 
-    let imgHandlers = this.svg.getElementsByTagName('image');
+    let imgHandlers = this.svg!.getElementsByTagName('image');
     for (let i = 0; i < imgHandlers.length; i++) {
-      imgHandlers[i].setAttribute('x', imgHandlersXY[i][0]);
-      imgHandlers[i].setAttribute('y', imgHandlersXY[i][1]);
+      imgHandlers[i].setAttribute('x', String(imgHandlersXY[i][0]));
+      imgHandlers[i].setAttribute('y', String(imgHandlersXY[i][1]));
     }
 
-    let pathEle = this.svg.getElementsByTagName('path')[0];
+    let pathEle = this.svg!.getElementsByTagName('path')[0];
     let path = composePath(
       {
         x: CIRCLE_RADIUS,
@@ -114,33 +127,34 @@ class PixelateHandlers extends Component {
     );
     pathEle.setAttribute('d', path);
 
-    let grabbingEle = this.svg.getElementsByTagName('rect')[0];
-    grabbingEle.setAttribute('x', this.handlerX + CIRCLE_RADIUS);
-    grabbingEle.setAttribute('y', this.handlerY + CIRCLE_RADIUS);
-    grabbingEle.setAttribute('width', this.handlerWidth - CIRCLE_RADIUS * 2);
-    grabbingEle.setAttribute('height', this.handlerHeight - CIRCLE_RADIUS * 2);
+    let grabbingEle = this.svg!.getElementsByTagName('rect')[0];
+    grabbingEle.setAttribute('x', String(this.handlerX + CIRCLE_RADIUS));
+    grabbingEle.setAttribute('y', String(this.handlerY + CIRCLE_RADIUS));
+    grabbingEle.setAttribute('width', String(this.handlerWidth - CIRCLE_RADIUS * 2));
+    grabbingEle.setAttribute('height', String(this.handlerHeight - CIRCLE_RADIUS * 2));
   };
 
-  onMouseDown = (evt) => {
-    if (!evt.target.classList.contains('canvas-handler')) {
+  onMouseDown = (evt: React.MouseEvent<SVGSVGElement>) => {
+    const target = evt.target as SVGElement;
+    if (!target.classList.contains('canvas-handler')) {
       return;
     }
 
-    if (evt.target.id === 'handler-8') {
-      evt.target.style.cursor = 'grabbing';
+    if (target.id === 'handler-8') {
+      (target as unknown as HTMLElement).style.cursor = 'grabbing';
     }
 
     this.handlerMovingX = evt.clientX;
     this.handlerMovingY = evt.clientY;
     this.setState({
-      selectedHandler: evt.target.id,
+      selectedHandler: target.id,
     });
   };
 
-  onMouseUp = (evt) => {
+  onMouseUp = (evt: React.MouseEvent<SVGSVGElement>) => {
     if (this.state.selectedHandler) {
       if (this.state.selectedHandler === 'handler-8') {
-        evt.target.style.cursor = 'grab';
+        (evt.target as unknown as HTMLElement).style.cursor = 'grab';
       }
 
       this.setState({ selectedHandler: '' });
@@ -148,8 +162,8 @@ class PixelateHandlers extends Component {
     }
   };
 
-  onMouseLeave = (evt) => {
-    let rect = this.svg.getElementsByTagName('rect')[0];
+  onMouseLeave = (_evt: React.MouseEvent<SVGSVGElement>) => {
+    let rect = this.svg!.getElementsByTagName('rect')[0];
     rect.style.cursor = 'grab';
 
     if (this.state.selectedHandler === '') {
@@ -158,7 +172,7 @@ class PixelateHandlers extends Component {
     this.setState({ selectedHandler: '' });
   };
 
-  onMouseMove = (evt) => {
+  onMouseMove = (evt: React.MouseEvent<SVGSVGElement>) => {
     if (!this.state.selectedHandler) {
       return;
     }
@@ -282,7 +296,7 @@ class PixelateHandlers extends Component {
       <svg
         id="canvas-handler"
         ref={(s) => (this.svg = s)}
-        style={svgStyle}
+        style={svgStyle as React.CSSProperties}
         onMouseDown={this.onMouseDown}
         onMouseUp={this.onMouseUp}
         onMouseMove={this.onMouseMove}
@@ -375,15 +389,15 @@ class PixelateHandlers extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  imgWidth: state.imgStat.get('width'),
-  imgHeight: state.imgStat.get('height'),
+const mapStateToProps = (state: RootState) => ({
+  imgWidth: state.imgStat.get('width') as number,
+  imgHeight: state.imgStat.get('height') as number,
 });
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ setPixelateHandlersPosition }, dispatch);
 export default connect(mapStateToProps, mapDispatchToProps)(PixelateHandlers);
 
-const composePath = (outer, inner) => {
+const composePath = (outer: { x: number; y: number; width: number; height: number }, inner: { x: number; y: number; width: number; height: number }) => {
   let outerRect =
     'M' +
     outer.x +

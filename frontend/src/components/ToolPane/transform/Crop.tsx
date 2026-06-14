@@ -3,9 +3,23 @@ import React, { Component } from 'react';
 import { setWidthHeight } from '../../../actions';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import type { RootState, AppDispatch } from '../../../store';
+import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-class Crop extends Component {
-  constructor(props) {
+type CropProps = ToolSubtoolProps & {
+  showCropHandlers: (show: boolean) => void;
+  imgWidth: number;
+  imgHeight: number;
+  setWidthHeight: (dims: { width: number; height: number }) => void;
+};
+
+class Crop extends Component<CropProps> {
+  wasm_img: WasmImage;
+  imgWidth: number;
+  imgHeight: number;
+  cropRegion: HTMLDivElement | null;
+
+  constructor(props: CropProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.imgWidth = props.imgWidth;
@@ -18,21 +32,21 @@ class Crop extends Component {
   componentDidMount = () => this.props.showCropHandlers(true);
   componentWillUnmount = () => this.props.showCropHandlers(false);
 
-  onApply = (evt) => {
-    let regionInfoEle = this.cropRegion.getElementsByClassName(
+  onApply = (_evt: React.MouseEvent<HTMLButtonElement>) => {
+    let regionInfoEle = this.cropRegion!.getElementsByClassName(
       'canvas-handler-region-info'
     );
-    let w = parseInt(regionInfoEle[0].innerText);
-    let h = parseInt(regionInfoEle[1].innerText);
-    let x = parseInt(regionInfoEle[2].innerText);
-    let y = parseInt(regionInfoEle[3].innerText);
+    let w = parseInt((regionInfoEle[0] as HTMLElement).innerText);
+    let h = parseInt((regionInfoEle[1] as HTMLElement).innerText);
+    let x = parseInt((regionInfoEle[2] as HTMLElement).innerText);
+    let y = parseInt((regionInfoEle[3] as HTMLElement).innerText);
 
     this.props.setWidthHeight({ width: w, height: h });
     this.wasm_img.crop(x, y, w, h);
     this.wasm_img.apply_change();
 
     this.props.onSelectTool('');
-    this.props.redraw();
+    this.props.redraw?.();
   };
 
   render() {
@@ -107,10 +121,10 @@ class Crop extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  imgWidth: state.imgStat.get('width'),
-  imgHeight: state.imgStat.get('height'),
+const mapStateToProps = (state: RootState) => ({
+  imgWidth: state.imgStat.get('width') as number,
+  imgHeight: state.imgStat.get('height') as number,
 });
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: AppDispatch) =>
   bindActionCreators({ setWidthHeight }, dispatch);
 export default connect(mapStateToProps, mapDispatchToProps)(Crop);

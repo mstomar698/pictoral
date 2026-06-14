@@ -1,9 +1,21 @@
 import imgObj from '../../common/imgObj';
 import React, { Component } from 'react';
 import ApplyButton from '../common/ApplyButton';
+import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-export default class Exposure extends Component {
-  constructor(props) {
+interface ExposureState {
+  contrastAdjustMode: string;
+  contrast: number;
+  brightness: number;
+}
+
+export default class Exposure extends Component<ToolSubtoolProps, ExposureState> {
+  wasm_img: WasmImage;
+  normalizeFactor: Record<string, number>;
+  sliderRange: Record<string, number[]>;
+  changeApplied: boolean;
+
+  constructor(props: ToolSubtoolProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.state = {
@@ -25,12 +37,12 @@ export default class Exposure extends Component {
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
-  onChange = (evt) => {
-    let tgt = evt.target;
+  onChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    let tgt = evt.target as HTMLInputElement;
 
     if (tgt.type === 'radio') {
       this.changeApplied = false;
@@ -45,22 +57,22 @@ export default class Exposure extends Component {
         return;
       }
 
-      this.props.redraw();
+      this.props.redraw?.();
       this.setState({ contrastAdjustMode });
       return;
     }
 
-    let valueType = tgt.dataset.valueType;
+    let valueType = tgt.dataset.valueType as 'contrast' | 'brightness';
     let valueChangeManner = tgt.dataset.valueChange;
     let currentValue = this.state[valueType];
     let newValue;
 
-    let min, max, step;
+    let min = 0, max = 0, step = 1;
     if (tgt.classList.contains('btn-plus-minus')) {
-      let rangeEle = tgt.parentElement.querySelector('input[type=range]');
-      max = parseInt(rangeEle.getAttribute('max'));
-      min = parseInt(rangeEle.getAttribute('min'));
-      step = parseInt(rangeEle.getAttribute('step'));
+      let rangeEle = tgt.parentElement!.querySelector('input[type=range]') as HTMLInputElement;
+      max = parseInt(rangeEle.getAttribute('max')!);
+      min = parseInt(rangeEle.getAttribute('min')!);
+      step = parseInt(rangeEle.getAttribute('step')!);
     }
 
     if (valueChangeManner === 'up') {
@@ -68,7 +80,7 @@ export default class Exposure extends Component {
     } else if (valueChangeManner === 'down') {
       newValue = Math.max(min, currentValue - step);
     } else if (valueChangeManner === 'set') {
-      newValue = parseInt(evt.target.value);
+      newValue = parseInt(tgt.value);
     }
 
     if (newValue === currentValue) {
@@ -76,11 +88,11 @@ export default class Exposure extends Component {
     }
 
     this.changeApplied = false;
-    this.setState({ [valueType]: newValue }, () => {
+    this.setState({ [valueType]: newValue } as Pick<ExposureState, 'contrast' | 'brightness'>, () => {
       let c = this.state.contrast * this.normalizeFactor.contrast;
       let b = this.state.brightness * this.normalizeFactor.brightness;
       this.wasm_img.manual_adjust_intensity(c, b);
-      this.props.redraw();
+      this.props.redraw?.();
     });
   };
 

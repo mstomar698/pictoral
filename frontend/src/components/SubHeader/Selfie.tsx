@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import type { EditorCallbacks } from '../../types';
 
 const VIDEO = 1;
 const CANVAS = -1;
@@ -17,8 +18,27 @@ const FILTERS = [
   { label: 'hue-rotate(270deg)', f: 'hue-rotate(270deg)' },
 ];
 
-export default class Selfie extends Component {
-  constructor(props) {
+interface SelfieProps {
+  loadImage: EditorCallbacks['loadImage'];
+  toggleCameraModal: () => void;
+}
+
+interface SelfieState {
+  currentMedia: number;
+  videoDimension: { width: number; height: number };
+  error: boolean;
+  showFilterList: boolean;
+  activeFilterIdx: number;
+}
+
+export default class Selfie extends Component<SelfieProps, SelfieState> {
+  flash: HTMLDivElement | null;
+  video: HTMLVideoElement | null;
+  canvas: HTMLCanvasElement | null;
+  constraints: MediaStreamConstraints;
+  op: Record<string, () => void>;
+
+  constructor(props: SelfieProps) {
     super(props);
     this.state = {
       currentMedia: NO_MEDIA,
@@ -48,6 +68,7 @@ export default class Selfie extends Component {
   }
 
   switchView = () => {
+    if (!this.video || !this.canvas) return;
     let video_zidx = this.video.style.zIndex;
     let canvas_zidx = this.canvas.style.zIndex;
     this.video.style.zIndex = canvas_zidx;
@@ -56,7 +77,9 @@ export default class Selfie extends Component {
   };
 
   takeShot = () => {
+    if (!this.canvas || !this.video) return;
     let ctx = this.canvas.getContext('2d');
+    if (!ctx) return;
     let idx = this.state.activeFilterIdx;
 
     if (typeof ctx.filter !== 'undefined' && idx !== 0) {
@@ -70,14 +93,16 @@ export default class Selfie extends Component {
   };
 
   confirmShot = () => {
+    if (!this.canvas) return;
     this.canvas.toBlob((blob) => {
-      this.props.loadImage(blob);
+      if (blob) this.props.loadImage(blob);
       this.closeCamera();
     }, 'image/png');
   };
 
   closeCamera = () => {
-    let stream = this.video.srcObject;
+    if (!this.video) return;
+    let stream = this.video.srcObject as MediaStream | null;
     if (stream) {
       let tracks = stream.getTracks();
       tracks.forEach((t) => t.stop());
@@ -87,6 +112,7 @@ export default class Selfie extends Component {
   };
 
   toggleFlashCls = () => {
+    if (!this.flash) return;
     let clsLs = this.flash.classList;
     if (clsLs.contains('flash')) {
       clsLs.remove('flash');
@@ -104,8 +130,10 @@ export default class Selfie extends Component {
     navigator.mediaDevices
       .getUserMedia(this.constraints)
       .then((stream) => {
+        if (!this.video) return;
         this.video.srcObject = stream;
         this.video.onloadedmetadata = () => {
+          if (!this.video) return;
           this.setState({
             videoDimension: {
               width: this.video.videoWidth,
@@ -121,26 +149,32 @@ export default class Selfie extends Component {
         this.setState({ error: true });
       });
 
-    this.flash.addEventListener('animationend', this.toggleFlashCls);
+    if (this.flash) {
+      this.flash.addEventListener('animationend', this.toggleFlashCls);
+    }
     document.addEventListener('click', this.toggleFilterList);
   };
 
   componentWillUnmount = () => {
-    this.flash.removeEventListener('animationend', this.toggleFlashCls);
+    if (this.flash) {
+      this.flash.removeEventListener('animationend', this.toggleFlashCls);
+    }
     document.removeEventListener('click', this.toggleFilterList);
   };
 
-  onClick = (evt) => {
-    let btnID = evt.target.id;
+  onClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    let btnID = evt.currentTarget.id;
     this.op[btnID]();
   };
 
-  selectFilter = (evt) => {
-    this.setState({ activeFilterIdx: parseInt(evt.target.dataset.filterIdx) });
+  selectFilter = (evt: React.MouseEvent<HTMLUListElement | HTMLLIElement | HTMLSpanElement>) => {
+    const target = evt.target as HTMLElement;
+    this.setState({ activeFilterIdx: parseInt(target.dataset.filterIdx ?? '0') });
   };
 
-  toggleFilterList = (evt) => {
-    let filterWrapper = evt.target.closest('#video-filter-wrapper');
+  toggleFilterList = (evt: MouseEvent) => {
+    const target = evt.target as HTMLElement | null;
+    let filterWrapper = target?.closest('#video-filter-wrapper');
     if (!filterWrapper && this.state.showFilterList) {
       this.setState({ showFilterList: false });
     } else if (filterWrapper) {
@@ -151,7 +185,7 @@ export default class Selfie extends Component {
   render() {
     let videoW = this.state.videoDimension.width;
     let videoH = this.state.videoDimension.height;
-    let iconVisible =
+    let iconVisible: React.CSSProperties['visibility'] =
       this.state.currentMedia === NO_MEDIA ? 'hidden' : 'visible';
     return (
       <div id="modal-camera">
@@ -262,7 +296,7 @@ export default class Selfie extends Component {
   }
 }
 
-const CameraIcon = (props) => {
+const CameraIcon = (props: { currentMedia: number; onClick: (evt: React.MouseEvent<HTMLButtonElement>) => void }) => {
   let m = props.currentMedia;
   let disabled = m === NO_MEDIA;
   let cls = 'camera-action ' + (disabled ? 'disabled' : '');
@@ -298,7 +332,7 @@ const CameraIcon = (props) => {
   );
 };
 
-const OkIcon = (props) => {
+const OkIcon = (props: { currentMedia: number; onClick: (evt: React.MouseEvent<HTMLButtonElement>) => void }) => {
   let m = props.currentMedia;
   let disabled = m !== CANVAS;
   let cls = 'camera-action ' + (disabled ? 'disabled' : '');
@@ -324,7 +358,7 @@ const OkIcon = (props) => {
   );
 };
 
-const CloseIcon = (props) => (
+const CloseIcon = (props: { onClick: (evt: React.MouseEvent<HTMLButtonElement>) => void }) => (
   <button
     id="btn-close-camera"
     className="camera-action"
@@ -345,7 +379,13 @@ const CloseIcon = (props) => (
   </button>
 );
 
-const FilterIcon = (props) => {
+const FilterIcon = (props: {
+  currentMedia: number;
+  showFilterList: boolean;
+  activeFilterIdx: number;
+  selectFilter: (evt: React.MouseEvent<HTMLUListElement | HTMLLIElement | HTMLSpanElement>) => void;
+  toggleFilterList: (evt: MouseEvent) => void;
+}) => {
   let m = props.currentMedia;
   let disabled = m !== VIDEO;
   let cls = 'camera-action ' + (disabled ? 'disabled' : '');
@@ -382,7 +422,10 @@ const FilterIcon = (props) => {
   );
 };
 
-const FilterList = (props) => {
+const FilterList = (props: {
+  selectFilter: (evt: React.MouseEvent<HTMLUListElement | HTMLLIElement | HTMLSpanElement>) => void;
+  activeFilterIdx: number;
+}) => {
   return (
     <ul
       onClick={props.selectFilter}

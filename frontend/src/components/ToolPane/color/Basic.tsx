@@ -1,9 +1,22 @@
 import imgObj from '../../common/imgObj';
 import React, { Component } from 'react';
 import ApplyButton from '../common/ApplyButton';
+import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-export default class Basic extends Component {
-  constructor(props) {
+interface BasicState {
+  inverted: boolean;
+  grayscaled: boolean;
+  hue: number;
+  saturation: number;
+  temperature: number;
+}
+
+export default class Basic extends Component<ToolSubtoolProps, BasicState> {
+  wasm_img: WasmImage;
+  normalizeFactor: Record<string, number>;
+  changeApplied: boolean;
+
+  constructor(props: ToolSubtoolProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
     this.state = {
@@ -26,25 +39,26 @@ export default class Basic extends Component {
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
-      this.props.redraw();
+      this.props.redraw?.();
     }
   };
 
-  onChange = (evt) => {
-    let valueType = evt.target.dataset.valueType;
-    let valueChangeManner = evt.target.dataset.valueChange;
+  onChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    const tgt = evt.target as HTMLInputElement;
+    let valueType = tgt.dataset.valueType as keyof BasicState;
+    let valueChangeManner = tgt.dataset.valueChange;
     let currentValue = this.state[valueType];
-    let newValue;
+    let newValue: number | boolean | undefined;
 
     if (valueType === 'grayscaled' || valueType === 'inverted') {
-      newValue = evt.target.checked;
+      newValue = tgt.checked;
     } else {
       if (valueChangeManner === 'up') {
-        newValue = Math.min(10, currentValue + 1);
+        newValue = Math.min(10, (currentValue as number) + 1);
       } else if (valueChangeManner === 'down') {
-        newValue = Math.max(-10, currentValue - 1);
+        newValue = Math.max(-10, (currentValue as number) - 1);
       } else if (valueChangeManner === 'set') {
-        newValue = parseInt(evt.target.value);
+        newValue = parseInt(tgt.value);
       }
     }
 
@@ -53,14 +67,14 @@ export default class Basic extends Component {
     }
 
     this.changeApplied = false;
-    this.setState({ [valueType]: newValue }, () => {
+    this.setState({ [valueType]: newValue } as Pick<BasicState, keyof BasicState>, () => {
       let h = this.state.hue * this.normalizeFactor.hue;
       let s = this.state.saturation * this.normalizeFactor.saturation;
       let t = this.state.temperature * this.normalizeFactor.temperature;
       let g = this.state.grayscaled;
       let i = this.state.inverted;
       this.wasm_img.adjust_hsi(h, s, t, g, i);
-      this.props.redraw();
+      this.props.redraw?.();
     });
   };
 
