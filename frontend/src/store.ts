@@ -1,9 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { fromJS, Map as ImmutableMap } from 'immutable';
-import thunk from 'redux-thunk';
+import { fromJS } from 'immutable';
 import reducers from './reducers';
 
-// Define your initial state using Immutable.js
 const initialState = {
   imgStat: fromJS({
     zoomRatio: 0,
@@ -21,11 +19,9 @@ const initialState = {
   }),
 };
 
-// Create a Redux store using Redux Toolkit
 const store = configureStore({
   reducer: reducers,
   preloadedState: initialState,
-  middleware: [thunk],
   devTools: process.env.NODE_ENV !== 'production',
 });
 

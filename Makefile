@@ -1,15 +1,25 @@
-.PHONY: build-native build-wasm serve clean
+.PHONY: build-native build-wasm serve clean test e2e typecheck
 
 build-native:
 	cargo build --manifest-path Cargo.toml
 
 build-wasm:
-	@which wasm-pack > /dev/null || (echo "wasm-pack not found. Install via: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh" && exit 1)
-	wasm-pack build --target web --out-dir pkg
+	@command -v wasm-pack >/dev/null 2>&1 || (echo "wasm-pack not found. Install: cargo install wasm-pack" && exit 1)
+	wasm-pack build --target bundler --out-dir pkg
 
 serve:
-	python3 -m http.server 8080 -d frontend
+	cd frontend && npm run dev
 
 clean:
 	cargo clean
-	rm -rf frontend/pkg
+	rm -rf pkg frontend/public/bootstrap.js
+
+test:
+	cargo test
+	cd frontend && npm run test
+
+e2e:
+	cd frontend && npm run e2e
+
+typecheck:
+	cd frontend && npm run typecheck

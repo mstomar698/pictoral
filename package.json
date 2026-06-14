@@ -1,0 +1,20 @@
+{
+  "name": "pictoral",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Browser image editor — Rust/WASM core + React frontend",
+  "scripts": {
+    "build:wasm": "wasm-pack build --target bundler --out-dir pkg",
+    "test:rust": "cargo test",
+    "dev": "npm run build:wasm && cd frontend && npm run dev",
+    "test": "npm run test:rust && cd frontend && npm run test",
+    "e2e": "cd frontend && npm run e2e",
+    "typecheck": "cd frontend && npm run typecheck",
+    "build": "npm run build:wasm && cd frontend && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mstomar698/pictoral.git"
+  },
+  "license": "MIT"
+}

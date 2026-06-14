@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import imgObj from '../common/imgObj';
-import { memory } from 'image-editor-bk-rust/image_editor_bg.wasm';
 let wasm_img = imgObj.get_wasm_img();
 
 export default class Save extends Component {
@@ -15,8 +14,7 @@ export default class Save extends Component {
     let h = wasm_img.height();
     canvas.width = w;
     canvas.height = h;
-    let pixelPtr = wasm_img.pixels();
-    const pixels = new Uint8Array(memory.buffer, pixelPtr, w * h * 4);
+    const pixels = wasm_img.pixels_data();
     createImageBitmap(new ImageData(new Uint8ClampedArray(pixels), w, h)).then(
       (img) => {
         let ctx = canvas.getContext('2d');
