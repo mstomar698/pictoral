@@ -219,7 +219,7 @@ export default class Selfie extends Component<SelfieProps, SelfieState> {
             </div>
 
             <div
-              ref={(div) => (this.flash = div)}
+              ref={(div) => { this.flash = div; }}
               id="flash"
               style={{ width: videoW + 'px', height: videoH + 'px' }}
             />
@@ -241,7 +241,7 @@ export default class Selfie extends Component<SelfieProps, SelfieState> {
               </div>
             )}
             <video
-              ref={(v) => (this.video = v)}
+              ref={(v) => { this.video = v; }}
               style={{
                 filter: FILTERS[this.state.activeFilterIdx].f,
                 zIndex: 15,
@@ -254,7 +254,7 @@ export default class Selfie extends Component<SelfieProps, SelfieState> {
               id="camera-canvas"
               width={videoW + 'px'}
               height={videoH + 'px'}
-              ref={(c) => (this.canvas = c)}
+              ref={(c) => { this.canvas = c; }}
               style={{ zIndex: 10, position: 'absolute', top: 0 }}
             />
 

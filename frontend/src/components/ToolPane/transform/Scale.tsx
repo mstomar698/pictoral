@@ -93,7 +93,7 @@ class Scale extends Component<ScaleProps, ScaleState> {
         <div
           id="scale-region-info"
           className="handler-info"
-          ref={(div) => (this.scaleRegion = div)}
+          ref={(div) => { this.scaleRegion = div; }}
           style={{
             display: 'flex',
             flexWrap: 'wrap',
