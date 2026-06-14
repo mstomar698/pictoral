@@ -140,6 +140,9 @@ class Main extends Component {
     tmpCtx.drawImage(img, 0, 0);
     let imgData = tmpCtx.getImageData(0, 0, w, h);
     wasm_img.reuse(w, h, imgData.data);
+    
+    // Initialize history with the original image
+    imgObj.initHistory();
 
     this.resizeCanvas(true);
   };

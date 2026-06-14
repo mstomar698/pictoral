@@ -1,34 +1,31 @@
 # Pictoral
 
-- A web-app that provide image manipulation and processing functionalities with the help of rust and wasm-pack.
-- It makes image transformation quick and secure with the help of webassembly.
+Pictoral is a web image editor powered by Rust + WebAssembly for image processing and a JavaScript frontend for UI/workflow controls.
 
+## Current code snapshot
+- Rust core crate compiled to WASM (`image-editor`).
+- Frontend uses React/Redux and custom canvas/tooling stack.
+- Core editor shell exists (tool pane, canvas, zoom, file loading).
 
-# Installation
+## Serviceability roadmap
+1. **Toolchain modernization:** simplify build/dev scripts and lock reproducible WASM builds.
+2. **Editing reliability:** undo/redo history, non-destructive edits, and robust import/export.
+3. **Product features:** batch operations, presets, and metadata-aware processing.
+4. **Delivery quality:** performance profiling and compatibility testing across browsers/devices.
 
-## Prerequisites
+## Client-ready enhancement scope
+- Plugin architecture for custom filters/effects.
+- Team workflow with shared presets.
+- SaaS mode for quick online editing.
+- API offering for server-side transformations.
 
-Upgrade npm, install Rust and wasm-pack(a one-stop shop for building and working with Rust-generated WebAssembly that you would like to interop with JavaScript).
-
+## Local setup
 ```bash
-npm install npm@latest -g
-curl https://sh.rustup.rs -sSf | sh
-curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-```
-
-## To run locally
-
-### Clone the repo
-
-```bash
-git clone https://github.com/mstomar698/pictoral
-#### In source folder 
+# Rust/WASM build
 wasm-pack build
-#### Then in Frontend folder 
+
+# frontend
+cd frontend
 npm install --legacy-peer-deps
-# setup
 npm run start
 ```
-
-To make it run on `http://localhost:8080/image-editor`
-

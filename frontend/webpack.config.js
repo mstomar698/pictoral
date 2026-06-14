@@ -2,12 +2,24 @@ const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
+// Resolve path to local wasm package (for local development)
+// Use this instead of npm link for better reliability
+const wasmPkgPath = path.resolve(__dirname, '..');
+
 module.exports = {
   entry: ['./bootstrap.js'],
   output: {
     publicPath: '',
     path: path.resolve(__dirname, 'public'),
     filename: 'bootstrap.js',
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    alias: {
+      // Point to local wasm package instead of node_modules
+      // This removes need for npm link
+      'image-editor-bk-rust': path.resolve(wasmPkgPath, 'pkg'),
+    },
   },
   experiments: {
     asyncWebAssembly: true,
@@ -25,6 +37,11 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: /(node_modules|bower_components)/,
+        use: 'ts-loader',
+      },
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,

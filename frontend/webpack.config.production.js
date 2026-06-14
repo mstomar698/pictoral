@@ -2,12 +2,21 @@ const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
+// Resolve path to local wasm package (for local development)
+const wasmPkgPath = path.resolve(__dirname, '..');
+
 module.exports = {
   entry: ['./bootstrap.js'],
   output: {
     publicPath: '',
     path: path.resolve(__dirname, 'public'),
     filename: 'bootstrap.js',
+  },
+  resolve: {
+    alias: {
+      // Point to local wasm package instead of node_modules
+      'image-editor-bk-rust': path.resolve(wasmPkgPath, 'pkg'),
+    },
   },
   mode: 'production',
   experiments: {
