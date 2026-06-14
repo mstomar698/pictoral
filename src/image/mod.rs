@@ -128,3 +128,54 @@ impl Image {
     }
 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Image;
+
+    fn solid_pixels(w: u32, h: u32, r: u8, g: u8, b: u8) -> Vec<u8> {
+        let mut buf = vec![0u8; (w * h * 4) as usize];
+        for px in 0..(w * h) as usize {
+            buf[px * 4] = r;
+            buf[px * 4 + 1] = g;
+            buf[px * 4 + 2] = b;
+            buf[px * 4 + 3] = 255;
+        }
+        buf
+    }
+
+    #[test]
+    fn new_image_stores_dimensions() {
+        let img = Image::new(4, 2, solid_pixels(4, 2, 255, 128, 64));
+        assert_eq!(img.width(), 4);
+        assert_eq!(img.height(), 2);
+        assert_eq!(img.width_bk(), 4);
+        assert_eq!(img.height_bk(), 2);
+    }
+
+    #[test]
+    fn pixels_data_returns_rgba_buffer() {
+        let buf = solid_pixels(1, 1, 10, 20, 30);
+        let img = Image::new(1, 1, buf.clone());
+        assert_eq!(img.pixels_data(), buf);
+    }
+
+    #[test]
+    fn apply_change_syncs_backup_buffer() {
+        let mut img = Image::new(2, 2, solid_pixels(2, 2, 255, 0, 0));
+        img.flip_h();
+        img.apply_change();
+        assert_eq!(img.pixels_data().len(), 16);
+        assert_eq!(img.width_bk(), 2);
+        assert_eq!(img.height_bk(), 2);
+    }
+
+    #[test]
+    fn discard_change_restores_backup() {
+        let original = solid_pixels(1, 1, 100, 50, 25);
+        let mut img = Image::new(1, 1, original.clone());
+        img.flip_h();
+        img.discard_change();
+        assert_eq!(img.pixels_data(), original);
+    }
+}

@@ -67,6 +67,11 @@ export interface HistoryState {
 }
 
 // Component prop types
+export interface EditorCallbacks {
+  resizeCanvas: (autoFit: boolean) => void;
+  loadImage: (src?: string | Blob) => void;
+}
+
 export interface DefaultComponentProps {
   className?: string;
   style?: React.CSSProperties;

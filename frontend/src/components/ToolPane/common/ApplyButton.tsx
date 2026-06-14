@@ -1,14 +1,14 @@
 import React from 'react';
 import imgObj from '../../common/imgObj';
 
-const ApplyButton = (props) => {
+interface ApplyButtonProps {
+  onApply?: () => void;
+}
+
+const ApplyButton: React.FC<ApplyButtonProps> = ({ onApply }) => {
   const handleClick = () => {
-    // Save current state to history before applying
     imgObj.saveState();
-    // Call the original onApply handler
-    if (props.onApply) {
-      props.onApply();
-    }
+    onApply?.();
   };
 
   return (

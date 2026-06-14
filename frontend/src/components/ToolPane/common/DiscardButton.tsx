@@ -1,8 +1,12 @@
 import React from 'react';
 
-const DiscardButton = (props) => (
+interface DiscardButtonProps {
+  onDiscard?: () => void;
+}
+
+const DiscardButton: React.FC<DiscardButtonProps> = ({ onDiscard }) => (
   <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-    <button className="primary-btn discard-btn" onClick={props.onDiscard}>
+    <button className="primary-btn discard-btn" onClick={onDiscard}>
       <svg
         viewBox="0 0 20 20"
         width="20"

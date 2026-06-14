@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import ZoomRatio from './ZoomRatio';
+import type { EditorCallbacks } from '../../types';
 
-class Footer extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
+interface FooterProps {
+  resizeCanvas: EditorCallbacks['resizeCanvas'];
+}
 
+class Footer extends Component<FooterProps> {
   render() {
     return (
       <div

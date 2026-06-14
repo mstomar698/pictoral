@@ -124,7 +124,7 @@ let imgObj = (function () {
       historyIndex = -1;
     },
     
-    imgBuff: null as HTMLImageElement | null,
+    imgBuff: null as HTMLImageElement | ImageBitmap | null,
   };
 })();
 

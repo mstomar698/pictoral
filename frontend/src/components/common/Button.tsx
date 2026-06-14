@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Button = (props) => (
+const Button: React.FC = () => (
   <button className="primary-btn cancel-btn">
     <svg viewBox="0 0 20 20" width="20" height="20" transform="scale(0.7, 0.7)">
       <path
@@ -11,4 +11,5 @@ const Button = (props) => (
     </svg>
   </button>
 );
+
 export default Button;

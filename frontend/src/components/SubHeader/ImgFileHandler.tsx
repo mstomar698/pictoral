@@ -3,8 +3,9 @@ import OpenImage from './OpenImage';
 import SaveImage from './SaveImage';
 import RestoreImage from './RestoreImage';
 import imgObj from '../common/imgObj';
+import type { EditorCallbacks } from '../../types';
 
-const ImgFileHandler = ({ resizeCanvas, loadImage }) => {
+const ImgFileHandler: React.FC<EditorCallbacks> = ({ resizeCanvas, loadImage }) => {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
@@ -37,8 +38,8 @@ const ImgFileHandler = ({ resizeCanvas, loadImage }) => {
     <div className="flex justify-around w-96 items-center">
       <button
         className={`inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-transparent text-sm font-medium ${
-          canUndo 
-            ? 'text-gray-300 hover:text-gray-50 hover:border-gray-100' 
+          canUndo
+            ? 'text-gray-300 hover:text-gray-50 hover:border-gray-100'
             : 'text-gray-600 cursor-not-allowed'
         } focus:outline-none`}
         onClick={handleUndo}
@@ -46,14 +47,14 @@ const ImgFileHandler = ({ resizeCanvas, loadImage }) => {
         title="Undo (Ctrl+Z)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 7v6h6"/>
-          <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+          <path d="M3 7v6h6" />
+          <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
         </svg>
       </button>
       <button
         className={`inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-transparent text-sm font-medium ${
-          canRedo 
-            ? 'text-gray-300 hover:text-gray-50 hover:border-gray-100' 
+          canRedo
+            ? 'text-gray-300 hover:text-gray-50 hover:border-gray-100'
             : 'text-gray-600 cursor-not-allowed'
         } focus:outline-none`}
         onClick={handleRedo}
@@ -61,15 +62,12 @@ const ImgFileHandler = ({ resizeCanvas, loadImage }) => {
         title="Redo (Ctrl+Y)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 7v6h-6"/>
-          <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/>
+          <path d="M21 7v6h-6" />
+          <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
         </svg>
       </button>
-      <div className="w-px h-6 bg-gray-500 mx-1"></div>
-      <OpenImage
-        resizeCanvas={resizeCanvas}
-        loadImage={loadImage}
-      />
+      <div className="w-px h-6 bg-gray-500 mx-1" />
+      <OpenImage resizeCanvas={resizeCanvas} loadImage={loadImage} />
       <SaveImage />
       <RestoreImage loadImage={loadImage} />
     </div>

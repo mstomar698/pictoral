@@ -1,26 +1,23 @@
 import React, { Component } from 'react';
 import imgObj from '../common/imgObj';
-let wasm_img = imgObj.get_wasm_img();
 
-export default class Save extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
+const wasm_img = imgObj.get_wasm_img();
 
+class SaveImage extends Component {
   onSave = () => {
-    let canvas = document.createElement('canvas');
-    let w = wasm_img.width();
-    let h = wasm_img.height();
+    const canvas = document.createElement('canvas');
+    const w = wasm_img.width();
+    const h = wasm_img.height();
     canvas.width = w;
     canvas.height = h;
     const pixels = wasm_img.pixels_data();
     createImageBitmap(new ImageData(new Uint8ClampedArray(pixels), w, h)).then(
       (img) => {
-        let ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0);
         canvas.toBlob((blob) => {
-          let link = document.createElement('a');
+          if (!blob) return;
+          const link = document.createElement('a');
           link.download = 'download.png';
           link.href = URL.createObjectURL(blob);
           link.click();
@@ -42,3 +39,5 @@ export default class Save extends Component {
     );
   }
 }
+
+export default SaveImage;
