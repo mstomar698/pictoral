@@ -1,0 +1,37 @@
+name: Bug report
+description: Report a problem with Pictoral
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Load an image ...
+        2. Apply filter ...
+        3. See error
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Browser + OS (and Rust / wasm-pack version if building locally).
+      placeholder: "Chrome 130 on macOS 15; rustc 1.96, wasm-pack 0.13"
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output / screenshots
+      description: Paste any relevant browser console output or screenshots.
+    validations:
+      required: false

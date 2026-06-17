@@ -2,6 +2,8 @@
 
 A browser-based image editor powered by **Rust + WebAssembly** for high-performance pixel processing and a **React + Redux** frontend for UI and workflow controls.
 
+**Live:** [pictoral.vercel.app](https://pictoral.vercel.app)
+
 [![CI](https://github.com/mstomar698/pictoral/actions/workflows/ci.yml/badge.svg)](https://github.com/mstomar698/pictoral/actions/workflows/ci.yml)
 
 ## Features
