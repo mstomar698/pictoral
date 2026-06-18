@@ -102,7 +102,10 @@ module.exports = {
       URL_PATH: JSON.stringify(''),
     }),
     new CopyWebpackPlugin({
-      patterns: [{ from: 'index.html' }],
+      patterns: [
+        { from: 'index.html' },
+        { from: 'assets', to: '.' },
+      ],
     }),
   ],
 };

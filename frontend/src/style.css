@@ -90,13 +90,45 @@ a {
 }
 
 .editor-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   font-size: 1.35rem;
   font-weight: 700;
   color: var(--editor-text);
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 
 .editor-brand:hover {
+  color: var(--editor-accent);
+}
+
+.editor-brand:hover .editor-logo__mark {
+  color: var(--editor-accent-hover);
+}
+
+.editor-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  line-height: 1;
+}
+
+.editor-logo__mark {
+  flex-shrink: 0;
+  color: var(--editor-text);
+  transition: color 0.15s ease;
+}
+
+.editor-logo__wordmark {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: inherit;
+}
+
+.editor-logo__accent {
   color: var(--editor-accent);
 }
 
