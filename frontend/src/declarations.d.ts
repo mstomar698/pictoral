@@ -1,6 +1,8 @@
 // Webpack-injected globals
 declare const URL_PATH: string;
 declare const PRODUCTION: boolean;
+declare const GOOGLE_CLIENT_ID: string;
+declare const GITHUB_CLIENT_ID: string;
 
 // Declare modules without TypeScript definitions
 

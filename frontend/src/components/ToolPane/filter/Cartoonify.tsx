@@ -3,16 +3,22 @@ import React, { Component } from 'react';
 import ApplyButton from '../common/ApplyButton';
 import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-export default class Cartoonify extends Component<ToolSubtoolProps> {
+interface CartoonifyState {
+  running: boolean;
+}
+
+export default class Cartoonify extends Component<ToolSubtoolProps, CartoonifyState> {
   wasm_img: WasmImage;
   changeApplied: boolean;
 
   constructor(props: ToolSubtoolProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
-    this.state = {};
+    this.state = { running: true };
     this.changeApplied = false;
   }
+
+  componentDidMount = () => setTimeout(this.onCartoonify, 0);
 
   componentWillUnmount = () => {
     if (!this.changeApplied) {
@@ -22,9 +28,10 @@ export default class Cartoonify extends Component<ToolSubtoolProps> {
   };
 
   onCartoonify = () => {
-    this.wasm_img.cartoonify(4, 5, 3, false);
-
+    this.wasm_img.cartoonify(4, 5.0, 3, false);
     this.props.redraw?.();
+    this.setState({ running: false });
+    this.changeApplied = false;
   };
 
   onApply = () => {
@@ -35,12 +42,16 @@ export default class Cartoonify extends Component<ToolSubtoolProps> {
 
   render() {
     return (
-      <div style={{ marginBottom: '180x', color: '#CCC' }}>
-        <button onClick={this.onCartoonify}>Cartoonify</button>
+      <div className="editor-panel">
+        <p className="editor-hint" style={{ visibility: this.state.running ? 'visible' : 'hidden' }}>
+          Running…
+        </p>
+        <button type="button" className="editor-btn editor-btn--secondary" onClick={this.onCartoonify}>
+          Re-run cartoonify
+        </button>
         <ApplyButton onApply={this.onApply} />
-
-        <p style={{ fontSize: '12px', marginTop: '18px', color: '#ddd' }}>
-          note: the bigger your image, the bigger the stdDev should be.
+        <p className="editor-hint">
+          Median denoise plus edge-preserving smooth. Larger images benefit from stronger settings.
         </p>
       </div>
     );

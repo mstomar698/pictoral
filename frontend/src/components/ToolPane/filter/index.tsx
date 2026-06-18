@@ -4,6 +4,9 @@ import GaussianBlur from './GaussianBlur';
 import BilateralFilter from './BilateralFilter';
 import Miniaturize from './Miniaturize';
 import Pixelate from './Pixelate';
+import Cartoonify from './Cartoonify';
+import Sharpen from './Sharpen';
+import MotionBlur from './MotionBlur';
 import ToolHeader from '../common/ToolHeader';
 import type { EditorCallbacks, RedrawProps, WasmImage } from '../../../types';
 
@@ -82,6 +85,32 @@ class FilterTool extends Component<FilterToolProps, FilterToolState> {
             redraw={this.props.redraw}
             loadImage={this.props.loadImage}
           />
+        </ToolHeader>
+        <ToolHeader
+          onSelect={this.onSelectTool}
+          toolID="filter-sharpen"
+          selectedTool={this.state.selectedTool}
+          label="SHARPEN"
+        >
+          <Sharpen onSelectTool={this.onSelectTool} redraw={this.props.redraw} />
+        </ToolHeader>
+
+        <ToolHeader
+          onSelect={this.onSelectTool}
+          toolID="filter-motionblur"
+          selectedTool={this.state.selectedTool}
+          label="MOTION"
+        >
+          <MotionBlur onSelectTool={this.onSelectTool} redraw={this.props.redraw} />
+        </ToolHeader>
+
+        <ToolHeader
+          onSelect={this.onSelectTool}
+          toolID="filter-cartoonify"
+          selectedTool={this.state.selectedTool}
+          label="CARTOON"
+        >
+          <Cartoonify onSelectTool={this.onSelectTool} redraw={this.props.redraw} />
         </ToolHeader>
       </div>
     );

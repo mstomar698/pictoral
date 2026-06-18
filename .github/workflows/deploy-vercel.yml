@@ -52,4 +52,4 @@ jobs:
             exit 0
           fi
           npm install --global vercel@latest
-          vercel deploy public --prod --yes --token="$VERCEL_TOKEN"
+          vercel deploy --prod --yes --token="$VERCEL_TOKEN"

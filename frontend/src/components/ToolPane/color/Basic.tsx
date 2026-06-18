@@ -87,7 +87,7 @@ export default class Basic extends Component<ToolSubtoolProps, BasicState> {
   render() {
     let hue_sat_disabled = this.state.grayscaled;
     return (
-      <div style={{ marginBottom: '180x', color: '#CCC' }}>
+      <div style={{ marginBottom: '18px', color: '#CCC' }}>
         <div
           className="toggle-btn-wrapper"
           style={{ paddingLeft: '8px', paddingRight: '8px' }}

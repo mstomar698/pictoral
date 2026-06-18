@@ -7,15 +7,17 @@ import Scale from './Scale';
 import Rotate from './Rotate';
 import ToolHeader from '../common/ToolHeader';
 import type { AppDispatch } from '../../../store';
-import type { RedrawProps } from '../../../types';
+import imgObj from '../../common/imgObj';
+import type { EditorCallbacks, RedrawProps } from '../../../types';
 
 interface TransformToolState {
   selectedTool: string;
 }
 
-type TransformToolProps = RedrawProps & {
-  showCropHandlers: (show: boolean) => void;
-};
+type TransformToolProps = RedrawProps &
+  Pick<EditorCallbacks, 'loadImage'> & {
+    showCropHandlers: (show: boolean) => void;
+  };
 
 class TransformTool extends Component<TransformToolProps, TransformToolState> {
   constructor(props: TransformToolProps) {
@@ -64,7 +66,11 @@ class TransformTool extends Component<TransformToolProps, TransformToolState> {
           selectedTool={this.state.selectedTool}
           label="SCALE"
         >
-          <Scale onSelectTool={this.onSelectTool} redraw={this.props.redraw} />
+          <Scale
+            onSelectTool={this.onSelectTool}
+            redraw={this.props.redraw}
+            loadImage={this.props.loadImage}
+          />
         </ToolHeader>
       </div>
     );

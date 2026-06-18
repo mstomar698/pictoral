@@ -41,8 +41,7 @@ export interface WasmImage {
   width_bk: () => number;
   height_bk: () => number;
   pixels_data: () => Uint8Array;
-  pixels: () => number;
-  pixels_bk: Uint8Array;
+  pixels_bk_data: () => Uint8Array;
   reuse: (width: number, height: number, data: Uint8Array) => void;
   apply_change: () => void;
   discard_change: () => void;
@@ -61,7 +60,9 @@ export interface WasmImage {
   auto_adjust_intensity: () => void;
   manual_adjust_intensity: (c: number, b: number) => void;
   blur: (radius: number) => void;
-  cartoonify: (a: number, b: number, c: number, d: boolean) => void;
+  cartoonify: (medianRadius: number, sigmaR: number, iterCount: number, incr: boolean) => void;
+  sharpen: (amount: number) => void;
+  motion_blur: (length: number) => void;
 }
 
 // History state type

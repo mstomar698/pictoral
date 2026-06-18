@@ -25,7 +25,7 @@ let imgObj = (function () {
     const height = img.height_bk();
     
     // Clone the backup pixels (these represent the last saved state)
-    const pixelsArray = img.pixels_bk;
+    const pixelsArray = img.pixels_bk_data();
     if (!pixelsArray || pixelsArray.length === 0) return;
     
     const currentPixels = new Uint8Array(pixelsArray);
@@ -65,7 +65,7 @@ let imgObj = (function () {
       const height = img.height();
       
       // Get current pixels
-      const pixelsArray = (img as unknown as { pixels_bk: Uint8Array }).pixels_bk;
+      const pixelsArray = img.pixels_bk_data();
       
       if (pixelsArray && pixelsArray.length > 0) {
         history = [{
@@ -79,6 +79,15 @@ let imgObj = (function () {
     
     // Save current state to history (call before apply_change)
     saveState: function (): void {
+      if (historyIndex < 0 && img && img.width() > 0) {
+        const width = img.width();
+        const height = img.height();
+        const pixelsArray = img.pixels_bk_data();
+        if (pixelsArray && pixelsArray.length > 0) {
+          history = [{ width, height, pixels: new Uint8Array(pixelsArray) }];
+          historyIndex = 0;
+        }
+      }
       saveToHistory();
     },
     

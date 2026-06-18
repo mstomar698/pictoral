@@ -60,7 +60,7 @@ class AccordionMenu extends Component<AccordionMenuProps> {
         break;
       case 'tool-transform':
         label = 'TRANSFORM';
-        tool = <TransformTool redraw={this.redraw} />;
+        tool = <TransformTool redraw={this.redraw} loadImage={this.props.loadImage} />;
         break;
       default:
         return null;

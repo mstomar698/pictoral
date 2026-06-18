@@ -3,6 +3,7 @@ import OpenImage from './OpenImage';
 import SaveImage from './SaveImage';
 import RestoreImage from './RestoreImage';
 import imgObj from '../common/imgObj';
+import { useEditorKeyboardShortcuts } from '../../hooks/useEditorKeyboardShortcuts';
 import type { EditorCallbacks } from '../../types';
 
 const ImgFileHandler: React.FC<EditorCallbacks> = ({ resizeCanvas, loadImage }) => {
@@ -33,6 +34,8 @@ const ImgFileHandler: React.FC<EditorCallbacks> = ({ resizeCanvas, loadImage }) 
       updateButtons();
     }
   }, [loadImage, updateButtons]);
+
+  useEditorKeyboardShortcuts({ onUndo: handleUndo, onRedo: handleRedo });
 
   return (
     <div className="flex justify-around w-96 items-center">

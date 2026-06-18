@@ -26,7 +26,7 @@ class Main extends Component<MainProps, MainState> {
   constructor(props: MainProps) {
     super(props);
     this.state = { selectedTool: null };
-    this.imgSrc = `${URL_PATH}/img/main.jpg`;
+    this.imgSrc = `${URL_PATH}/img/main.png`;
   }
 
   onSelectTool = (id: string | null) => this.setState({ selectedTool: id });

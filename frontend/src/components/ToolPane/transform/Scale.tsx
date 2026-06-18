@@ -4,7 +4,7 @@ import { setWidthHeight } from '../../../actions';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import type { RootState, AppDispatch } from '../../../store';
-import type { ToolSubtoolProps, WasmImage } from '../../../types';
+import type { ToolSubtoolProps, WasmImage, EditorCallbacks } from '../../../types';
 
 interface ScaleState {
   scaleFactor: number;
@@ -14,6 +14,7 @@ type ScaleProps = ToolSubtoolProps & {
   imgWidth: number;
   imgHeight: number;
   setWidthHeight: (dims: { width: number; height: number }) => void;
+  loadImage?: EditorCallbacks['loadImage'];
 };
 
 class Scale extends Component<ScaleProps, ScaleState> {
@@ -80,7 +81,9 @@ class Scale extends Component<ScaleProps, ScaleState> {
     this.props.setWidthHeight({ width: this.imgWidth, height: this.imgHeight });
 
     this.wasm_img.apply_change();
-
+    imgObj.saveState();
+    this.props.redraw?.(true);
+    this.props.loadImage?.();
     this.changeApplied = true;
 
     this.props.onSelectTool('');

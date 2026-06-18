@@ -165,7 +165,7 @@ class Miniaturize extends Component<MiniaturizeProps, MiniaturizeState> {
 
   render() {
     return (
-      <div style={{ marginBottom: '180x', color: '#CCC' }}>
+      <div style={{ marginBottom: '18px', color: '#CCC' }}>
         <div
           className="blinking-text"
           style={{ visibility: this.state.running ? 'visible' : 'hidden' }}
