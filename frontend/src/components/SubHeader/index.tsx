@@ -7,11 +7,8 @@ interface SubHeaderProps {
 }
 
 const SubHeader: React.FC<SubHeaderProps> = ({ resizeCanvas, loadImage }) => (
-  <div className="w-full h-max flex z-50 relative top-0 justify-center items-center bg-gray-700 shadow-md">
-    <ImgFileHandler
-      resizeCanvas={resizeCanvas}
-      loadImage={loadImage}
-    />
+  <div className="editor-toolbar">
+    <ImgFileHandler resizeCanvas={resizeCanvas} loadImage={loadImage} />
   </div>
 );
 

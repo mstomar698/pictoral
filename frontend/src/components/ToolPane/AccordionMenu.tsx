@@ -82,17 +82,10 @@ interface AccordionHeaderProps {
 }
 
 const AccordionHeader: React.FC<AccordionHeaderProps> = ({ close, label, children }) => (
-  <div style={{ padding: '6px 20px', height: '100%' }}>
-    <div
-      style={{
-        marginBottom: '18px',
-        padding: 0,
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <button id="editor-goback-btn" onClick={close}>
-        <svg viewBox="0 0 20 20" width="100%" height="100%" fill="#ccc" pointerEvents="none">
+  <div className="editor-accordion">
+    <div className="editor-accordion-header">
+      <button type="button" className="editor-back-btn" id="editor-goback-btn" onClick={close} aria-label="Close tool panel">
+        <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor" pointerEvents="none">
           <g fillRule="evenodd">
             <path
               fillRule="nonzero"
@@ -103,10 +96,8 @@ const AccordionHeader: React.FC<AccordionHeaderProps> = ({ close, label, childre
           </g>
         </svg>
       </button>
-      <span style={{ color: '#ccc', fontSize: '18px', marginLeft: '8px' }}>
-        {label}
-      </span>
+      <span className="editor-accordion-title">{label}</span>
     </div>
-    {children}
+    <div className="editor-accordion-body scrollbar">{children}</div>
   </div>
 );
