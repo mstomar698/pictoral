@@ -1,7 +1,6 @@
 extern crate wasm_bindgen;
 extern crate web_sys;
 
-use std::cmp;
 use std::iter::Iterator;
 use wasm_bindgen::prelude::*;
 use super::Image;
@@ -193,7 +192,7 @@ impl Image {
     pub fn gaussian_blur(&mut self, sigma: f64, top_x: i32, top_y: i32, width: u32, height: u32, is_standalone: bool) {
         let mut top_x = top_x.max(0).min(self.width_bk as i32);
         let mut top_y = top_y.max(0).min(self.height_bk as i32);
-        let mut width = width.min(self.width_bk);
+        let width = width.min(self.width_bk);
         let height = height.min(self.height_bk);
 
         if top_x as u32 + width > self.width_bk {
@@ -204,35 +203,70 @@ impl Image {
         }
 
         let img_width = self.width;
-        let img_height = self.height;
 
-        let whole_img_blur = if width == self.width && height == self.height {true} else {false};
-        let mut tgt: Vec<u8> = vec![0_u8; (width * height) as usize * 4];
-        let mut src = if whole_img_blur {
-            self.pixels_bk.clone()
+        let whole_img_blur = width == self.width && height == self.height;
+        let pixel_bytes = (width * height * 4) as usize;
+        self.ensure_blur_scratch(pixel_bytes);
+
+        let num_pass = 3;
+        let box_size = self.box_for_gaussian(sigma, num_pass);
+
+        if whole_img_blur {
+            let bk = self.pixels_bk.as_slice();
+            for idx in 0..num_pass {
+                let r = box_size[idx as usize] / 2;
+                if idx % 2 == 0 {
+                    Self::box_blur_h(bk, &mut self.blur_scratch_a[..pixel_bytes], width, height, r);
+                    Self::box_blur_v(
+                        &self.blur_scratch_a[..pixel_bytes],
+                        &mut self.blur_scratch_b[..pixel_bytes],
+                        width,
+                        height,
+                        r,
+                    );
+                } else {
+                    Self::box_blur_h(
+                        &self.blur_scratch_b[..pixel_bytes],
+                        &mut self.blur_scratch_a[..pixel_bytes],
+                        width,
+                        height,
+                        r,
+                    );
+                    Self::box_blur_v(
+                        &self.blur_scratch_a[..pixel_bytes],
+                        &mut self.blur_scratch_b[..pixel_bytes],
+                        width,
+                        height,
+                        r,
+                    );
+                }
+            }
+            let final_buf = if (num_pass - 1) % 2 == 0 {
+                &self.blur_scratch_b[..pixel_bytes]
+            } else {
+                &self.blur_scratch_a[..pixel_bytes]
+            };
+            if self.pixels.len() == pixel_bytes {
+                self.pixels.copy_from_slice(final_buf);
+            } else {
+                self.pixels = final_buf.to_vec();
+            }
         } else {
-            
-            
-            let mut src: Vec<u8> = Vec::with_capacity((width * height) as usize * 4);
+            let mut src: Vec<u8> = Vec::with_capacity(pixel_bytes);
             for r in 0..height {
                 let start_idx = ((top_y as u32 + r) * img_width + top_x as u32) as usize;
                 let end_idx = start_idx + width as usize;
                 let row = &self.pixels_bk[(start_idx * 4)..(end_idx * 4)];
                 src.extend_from_slice(row);
             }
-            src
-        };
 
-        let num_pass = 3; 
-        let box_size = self.box_for_gaussian(sigma, num_pass);
-        for idx in 0..num_pass {
-            self.box_blur_h(&src, &mut tgt, width, height, box_size[idx as usize] / 2);
-            self.box_blur_v(&tgt, &mut src, width, height,box_size[idx as usize] / 2);
-        }
+            let mut tgt: Vec<u8> = vec![0_u8; pixel_bytes];
+            for idx in 0..num_pass {
+                let r = box_size[idx as usize] / 2;
+                Self::box_blur_h(&src, &mut tgt, width, height, r);
+                Self::box_blur_v(&tgt, &mut src, width, height, r);
+            }
 
-        if whole_img_blur {
-            self.pixels = src;
-        } else {
             for row in 0..height {
                 for col in 0..width {
                     let idx_img = ((top_y as u32 + row) * img_width + (top_x as u32 + col)) as usize;
@@ -251,62 +285,100 @@ impl Image {
     }
 
     
-    fn box_blur_v(&mut self, src: &[u8], tgt: &mut [u8], width: u32, height: u32, radius: u32) {
+    fn box_blur_v(src: &[u8], tgt: &mut [u8], width: u32, height: u32, radius: u32) {
         let channel_count = (src.len() as f64 / (width * height) as f64) as u32;
-        let channel_count = if channel_count >= 3 {4} else {1};
-        let radius = if radius % 2 == 0 {radius + 1} else {radius};
-        let avg = 1.0 / (radius * 2 + 1) as f64;
-
-        let mut running_sum = vec![0_u32; channel_count as usize];
-        let mut box_sum = |row: u32, col: u32, start: i32, end: i32| {
-            for idx in 0..(radius * 2 + 1) {
-                let row = cmp::min(cmp::max(start + idx as i32, 0), height as i32 - 1) as u32;
-                let idx2 = (row * width) as usize + col as usize;
-                for c in 0..channel_count {
-                    running_sum[c] += src[idx2 * channel_count + c] as u32;
-                }
-            }
-
-            let idx = (row * width + col) as usize;
-            for c in 0..channel_count {
-                tgt[idx * channel_count + c] = (running_sum[c] as f64 * avg).min(255.0).round() as u8;
-                running_sum[c] = 0;
-            }
-        };
+        let channel_count = if channel_count >= 3 { 4 } else { 1 };
+        let mut r = radius;
+        if r % 2 == 0 {
+            r += 1;
+        }
+        let kernel_size = r * 2 + 1;
+        let r_i = r as i32;
+        let h_i = height as i32;
+        let norm = kernel_size;
+        let avg = 1.0 / norm as f64;
 
         for col in 0..width {
-            for row in 0..height {
-                box_sum(row,col, row as i32 - radius as i32, row as i32 + radius as i32)
+            let mut sum = vec![0_u32; channel_count as usize];
+
+            for k in 0..kernel_size {
+                let sr = (0i32 - r_i + k as i32).clamp(0, h_i - 1) as u32;
+                let idx = (sr * width + col) as usize;
+                for c in 0..channel_count {
+                    sum[c as usize] += src[idx * channel_count as usize + c as usize] as u32;
+                }
+            }
+            for c in 0..channel_count {
+                let idx = col as usize;
+                tgt[idx * channel_count as usize + c as usize] =
+                    (sum[c as usize] as f64 * avg).min(255.0).round() as u8;
+            }
+
+            for row in 1..height {
+                let remove_row = ((row as i32 - 1) - r_i).clamp(0, h_i - 1) as u32;
+                let add_row = ((row as i32) + r_i).clamp(0, h_i - 1) as u32;
+                let rem_idx = (remove_row * width + col) as usize;
+                let add_idx = (add_row * width + col) as usize;
+                for c in 0..channel_count {
+                    let ci = c as usize;
+                    sum[ci] = sum[ci]
+                        .saturating_sub(src[rem_idx * channel_count as usize + ci] as u32)
+                        .saturating_add(src[add_idx * channel_count as usize + ci] as u32);
+                }
+                let out_idx = (row * width + col) as usize;
+                for c in 0..channel_count {
+                    tgt[out_idx * channel_count as usize + c as usize] =
+                        (sum[c as usize] as f64 * avg).min(255.0).round() as u8;
+                }
             }
         }
     }
 
-    fn box_blur_h(&mut self, src: &[u8], tgt: &mut [u8], width: u32, height: u32, radius: u32) {
+    fn box_blur_h(src: &[u8], tgt: &mut [u8], width: u32, height: u32, radius: u32) {
         let channel_count = (src.len() as f64 / (width * height) as f64) as u32;
-        let channel_count = if channel_count >= 3 {4} else {1};
-        let radius = if radius % 2 == 0 {radius + 1} else {radius};
-        let avg = 1.0 / (radius * 2 + 1) as f64;
-
-        let mut running_sum = vec![0_u32; channel_count as usize];
-        let mut box_sum = |row, col, start: i32, end: i32| {
-            for idx in 0..(radius * 2 + 1) {
-                let col = cmp::min(cmp::max(start + idx as i32, 0), width as i32 - 1);
-                let idx2 = (row * width) as usize + col as usize;
-                for c in 0..channel_count {
-                    running_sum[c] += src[idx2 * channel_count + c] as u32;
-                }
-            }
-
-            let idx = (row * width + col) as usize;
-            for c in 0..channel_count {
-                tgt[idx * channel_count + c] = (running_sum[c] as f64 * avg).min(255.0).round() as u8;
-                running_sum[c]= 0;
-            }
-        };
+        let channel_count = if channel_count >= 3 { 4 } else { 1 };
+        let mut r = radius;
+        if r % 2 == 0 {
+            r += 1;
+        }
+        let kernel_size = r * 2 + 1;
+        let r_i = r as i32;
+        let w_i = width as i32;
+        let norm = kernel_size;
+        let avg = 1.0 / norm as f64;
 
         for row in 0..height {
-            for col in 0..width {
-                box_sum(row,col, col as i32 - radius as i32, col as i32 + radius as i32)
+            let row_off = (row * width) as usize;
+            let mut sum = vec![0_u32; channel_count as usize];
+
+            for k in 0..kernel_size {
+                let sc = (0i32 - r_i + k as i32).clamp(0, w_i - 1) as u32;
+                let idx = row_off + sc as usize;
+                for c in 0..channel_count {
+                    sum[c as usize] += src[idx * channel_count as usize + c as usize] as u32;
+                }
+            }
+            for c in 0..channel_count {
+                tgt[row_off * channel_count as usize + c as usize] =
+                    (sum[c as usize] as f64 * avg).min(255.0).round() as u8;
+            }
+
+            for col in 1..width {
+                let remove_col = ((col as i32 - 1) - r_i).clamp(0, w_i - 1) as u32;
+                let add_col = ((col as i32) + r_i).clamp(0, w_i - 1) as u32;
+                let rem_idx = row_off + remove_col as usize;
+                let add_idx = row_off + add_col as usize;
+                for c in 0..channel_count {
+                    let ci = c as usize;
+                    sum[ci] = sum[ci]
+                        .saturating_sub(src[rem_idx * channel_count as usize + ci] as u32)
+                        .saturating_add(src[add_idx * channel_count as usize + ci] as u32);
+                }
+                let out_idx = row_off + col as usize;
+                for c in 0..channel_count {
+                    tgt[out_idx * channel_count as usize + c as usize] =
+                        (sum[c as usize] as f64 * avg).min(255.0).round() as u8;
+                }
             }
         }
     }

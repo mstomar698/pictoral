@@ -42,8 +42,11 @@ pub struct Image {
     last_operation: Operation,
 
     hsi: Vec<Vec<f64>>, 
-    lab: Vec<f64>, 
-    
+    lab: Vec<f64>,
+
+    /// Reused scratch buffers for separable blur passes (avoids per-call allocations).
+    blur_scratch_a: Vec<u8>,
+    blur_scratch_b: Vec<u8>,
 }
 
 #[wasm_bindgen]
@@ -63,7 +66,8 @@ impl Image {
 
             hsi: vec![vec![], vec![], vec![]],
             lab: vec![0_f64; 0],
-            
+            blur_scratch_a: vec![],
+            blur_scratch_b: vec![],
         }
     }
 
@@ -93,6 +97,13 @@ impl Image {
     pub fn height(&self) -> u32 { self.height }
     pub fn width_bk(&self) -> u32 { self.width_bk }
     pub fn height_bk(&self) -> u32 { self.height_bk }
+
+    pub(crate) fn ensure_blur_scratch(&mut self, byte_len: usize) {
+        if self.blur_scratch_a.len() < byte_len {
+            self.blur_scratch_a.resize(byte_len, 0);
+            self.blur_scratch_b.resize(byte_len, 0);
+        }
+    }
 
     
     fn cleanup(&mut self) {
@@ -195,5 +206,64 @@ mod tests {
         let buf = solid_pixels(w, h, 1, 2, 3);
         let img = Image::new(w, h, buf);
         assert_eq!(img.pixels_data().len(), (w * h * 4) as usize);
+    }
+
+    fn checker_pixels(w: u32, h: u32) -> Vec<u8> {
+        let mut buf = vec![0u8; (w * h * 4) as usize];
+        for row in 0..h {
+            for col in 0..w {
+                let idx = (row * w + col) as usize;
+                let v = if (row + col) % 2 == 0 { 255 } else { 0 };
+                buf[idx * 4] = v;
+                buf[idx * 4 + 1] = v;
+                buf[idx * 4 + 2] = v;
+                buf[idx * 4 + 3] = 255;
+            }
+        }
+        buf
+    }
+
+    #[test]
+    fn gaussian_blur_preserves_solid_color() {
+        let original = solid_pixels(16, 16, 120, 80, 40);
+        let mut img = Image::new(16, 16, original.clone());
+        img.gaussian_blur(1.0, 0, 0, 16, 16, true);
+        let out = img.pixels_data();
+        for px in 0..(16 * 16) as usize {
+            assert_eq!(out[px * 4], 120, "red channel changed at pixel {px}");
+            assert_eq!(out[px * 4 + 1], 80, "green channel changed at pixel {px}");
+            assert_eq!(out[px * 4 + 2], 40, "blue channel changed at pixel {px}");
+        }
+    }
+
+    #[test]
+    fn gaussian_blur_softens_checkerboard_edges() {
+        let mut img = Image::new(8, 8, checker_pixels(8, 8));
+        img.gaussian_blur(1.5, 0, 0, 8, 8, true);
+        let out = img.pixels_data();
+        let center = out[(3 * 8 + 3) * 4] as u16;
+        assert!(center > 0 && center < 255, "center pixel should be blended, got {center}");
+    }
+
+    #[test]
+    fn gaussian_blur_regression_checksum() {
+        let mut img = Image::new(8, 8, checker_pixels(8, 8));
+        img.gaussian_blur(1.0, 0, 0, 8, 8, true);
+        let sum: u32 = img
+            .pixels_data()
+            .chunks(4)
+            .map(|px| px[0] as u32 + px[1] as u32 + px[2] as u32)
+            .sum();
+        // Guards against accidental output drift from blur refactors.
+        assert_eq!(sum, 24480);
+    }
+
+    #[test]
+    fn scale_down_halves_dimensions() {
+        let mut img = Image::new(8, 8, solid_pixels(8, 8, 10, 20, 30));
+        img.scale(0.5);
+        assert_eq!(img.width(), 4);
+        assert_eq!(img.height(), 4);
+        assert_eq!(img.pixels_data().len(), 64);
     }
 }

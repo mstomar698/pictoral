@@ -136,18 +136,17 @@ impl Image {
         let w = (self.width_bk as f64 * factor).floor() as u32; 
         let h = (self.height_bk as f64 * factor).floor() as u32;
 
-        let mut new_pixels = Vec::with_capacity((w * h * 4) as usize);
-        let mut pixel_buf = Vec::with_capacity(4);
+        let mut new_pixels = vec![0u8; (w * h * 4) as usize];
+        let mut pixel = [0u8; 4];
         for row in 0..h {
             for col in 0..w {
-                
-                
-                
-                
-
-                
-                self.bilinear_interpolate((row as f64 / factor) * 0.9999,(col as f64 / factor) * 0.9999, &mut pixel_buf);
-                new_pixels.append(&mut pixel_buf); 
+                self.bilinear_interpolate(
+                    (row as f64 / factor) * 0.9999,
+                    (col as f64 / factor) * 0.9999,
+                    &mut pixel,
+                );
+                let idx = ((row * w + col) * 4) as usize;
+                new_pixels[idx..idx + 4].copy_from_slice(&pixel);
             }
         }
 
@@ -159,7 +158,7 @@ impl Image {
 
     
     
-    fn bilinear_interpolate(&self, x: f64, y: f64, pixel_buf: &mut Vec<u8>){ 
+    fn bilinear_interpolate(&self, x: f64, y: f64, pixel_buf: &mut [u8; 4]) {
         let (mut tl, mut tr, mut bl, mut br) = ( 
                                                  (x.floor() as u32, y.floor() as u32),
                                                  (x.ceil() as u32, y.floor() as u32),
@@ -198,7 +197,7 @@ impl Image {
             x_linear2 = (br.0 as f64 - x).abs() * tl_pixel as f64 + (x - bl.0 as f64).abs() * tr_pixel as f64;
             interpolated = (y - tl.1 as f64).abs() * x_linear1 + (bl.1 as f64 - y).abs() * x_linear2; 
 
-            pixel_buf.push(interpolated as u8);
+            pixel_buf[color_channel as usize] = interpolated as u8;
         }
     }
 

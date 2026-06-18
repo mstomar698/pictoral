@@ -57,4 +57,12 @@ test.describe('Pictoral editor shell', () => {
     await expect(page.getByRole('button', { name: 'Click canvas to place' })).toBeVisible();
     await expect(page.locator('.editor-textarea')).toBeVisible();
   });
+
+  test('opens filter tool with blur controls', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('#tool-filter').click();
+    await expect(page.getByText('BLUR', { exact: true })).toBeVisible();
+    await page.locator('#filter-gaussianblur').click();
+    await expect(page.getByText('Gaussian Blur', { exact: true })).toBeVisible();
+  });
 });
