@@ -17,11 +17,13 @@ In **Settings → Branches → Add branch protection rule** for `main`:
 - [ ] Do not allow bypassing the above settings
 - [ ] Restrict who can push to matching branches (optional: maintainers only)
 
-## GitHub Pages demo
+## GitHub Pages demo (optional)
 
 1. **Settings → Pages → Build and deployment**: Source = **GitHub Actions**
 2. Push to `main` triggers `.github/workflows/deploy-pages.yml`
 3. Demo URL: `https://mstomar698.github.io/pictoral/`
+
+Primary production URL: [pictoral.vercel.app](https://pictoral.vercel.app)
 
 ## npm WASM package
 

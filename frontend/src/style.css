@@ -324,6 +324,26 @@ a {
   color: var(--editor-muted);
 }
 
+.editor-sample-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.editor-sample-list li {
+  color: var(--editor-accent);
+  cursor: pointer;
+}
+
+.editor-sample-list li:hover {
+  color: var(--editor-accent-hover);
+  text-decoration: underline;
+}
+
 .editor-section {
   display: flex;
   flex-direction: column;

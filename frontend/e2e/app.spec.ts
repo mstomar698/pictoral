@@ -38,7 +38,7 @@ test.describe('Pictoral editor shell', () => {
     await expect(page.getByRole('heading', { name: /Sign in to Pictoral/i })).toBeVisible();
     await page.getByRole('button', { name: /Continue as guest/i }).click();
     await expect(page).toHaveURL('/');
-    await expect(page.getByText('Guest')).toBeVisible();
+    await expect(page.locator('.editor-account__name')).toHaveText('Guest');
   });
 
   test('shows legal pages from footer', async ({ page }) => {

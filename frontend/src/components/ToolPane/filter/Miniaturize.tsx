@@ -252,14 +252,10 @@ class Miniaturize extends Component<MiniaturizeProps, MiniaturizeState> {
 
         <ApplyButton onApply={this.onApply} />
 
-        <p style={{ fontSize: '12px', marginTop: '18px', color: '#ddd' }}>
-          This filter make subject look like a miniature-scale model. The
-          following 2 images best represent this filtering result.
+        <p className="editor-hint">
+          Tilt-shift effect — try these aerial scenes for a miniature-scale look.
         </p>
-        <ul
-          style={{ fontSize: '12px', paddingLeft: '12px', color: '#00B7FF' }}
-          onClick={this.loadImage}
-        >
+        <ul className="editor-sample-list" onClick={this.loadImage}>
           <li className="clickable" id={`${URL_PATH}/img/stadium.jpg`}>
             Stadium
           </li>

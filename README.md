@@ -9,11 +9,15 @@ A browser-based image editor powered by **Rust + WebAssembly** for high-performa
 ## Features
 
 - Load and edit images in the browser (no server upload required)
-- Image filters: Gaussian blur, bilateral filter, sharpen, pixelate, miniaturize, cartoonify
+- Image filters: Gaussian blur, bilateral filter, sharpen, motion blur, pixelate, miniaturize, cartoonify
 - Transform tools: crop, scale, rotate, flip
 - Color adjustments: exposure, basic color controls
-- Undo/redo history (up to 20 states)
+- Text overlay tool
+- Undo/redo history (up to 20 states) with keyboard shortcuts (Ctrl+Z / Ctrl+Y)
 - Zoom and canvas auto-fit
+- Responsive layout (desktop, tablet, mobile)
+- Optional sign-in: Google, GitHub, or guest mode
+- Privacy, terms, and cookie consent pages
 
 ## Architecture
 
@@ -78,6 +82,22 @@ npm run e2e
 # Production build
 npm run build
 ```
+
+## Deployment
+
+Production deploys to **Vercel** via `.github/workflows/deploy-vercel.yml` on pushes to `main`.
+
+Set these environment variables in Vercel for OAuth (guest mode works without them):
+
+| Variable | Purpose |
+|----------|---------|
+| `GOOGLE_CLIENT_ID` | Google sign-in button |
+| `GITHUB_CLIENT_ID` | GitHub OAuth app client ID |
+| `GITHUB_CLIENT_SECRET` | Server-side token exchange (`/api/auth/github`) |
+
+GitHub OAuth callback URL: `https://pictoral.vercel.app/auth/callback/github`
+
+Copy `frontend/.env.example` for local development.
 
 ## Contributing
 
