@@ -38,6 +38,9 @@ fn wasm_gaussian_blur_smoke() {
     let mut img = Image::new(8, 8, solid_pixels(8, 8, 200, 100, 50));
     img.gaussian_blur(1.0, 0, 0, 8, 8, true);
     assert_eq!(img.pixels_data().len(), 256);
+    assert_eq!(img.pixels_data()[0], 200);
+    assert_eq!(img.pixels_data()[1], 100);
+    assert_eq!(img.pixels_data()[2], 50);
 }
 
 #[wasm_bindgen_test]
