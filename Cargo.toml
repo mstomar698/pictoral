@@ -37,5 +37,7 @@ name = "image_ops"
 harness = false
 
 [profile.release]
-opt-level = "s"
+# Speed-optimized release (WASM hot paths: blur, bilateral, scale). Slightly larger binary than opt-level "s".
+opt-level = 3
 lto = true
+codegen-units = 1

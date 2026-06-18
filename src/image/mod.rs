@@ -47,6 +47,13 @@ pub struct Image {
     /// Reused scratch buffers for separable blur passes (avoids per-call allocations).
     blur_scratch_a: Vec<u8>,
     blur_scratch_b: Vec<u8>,
+
+    /// Reused ping-pong buffers for bilateral filter iterations.
+    bf_scratch_a: Vec<u8>,
+    bf_scratch_b: Vec<u8>,
+    /// Cached exp range-kernel LUT keyed by `bf_range_sigma`.
+    bf_range_sigma: f64,
+    bf_range_lut: Vec<f64>,
 }
 
 #[wasm_bindgen]
@@ -68,6 +75,10 @@ impl Image {
             lab: vec![0_f64; 0],
             blur_scratch_a: vec![],
             blur_scratch_b: vec![],
+            bf_scratch_a: vec![],
+            bf_scratch_b: vec![],
+            bf_range_sigma: 0.0,
+            bf_range_lut: vec![],
         }
     }
 
@@ -102,6 +113,13 @@ impl Image {
         if self.blur_scratch_a.len() < byte_len {
             self.blur_scratch_a.resize(byte_len, 0);
             self.blur_scratch_b.resize(byte_len, 0);
+        }
+    }
+
+    pub(crate) fn ensure_bf_scratch(&mut self, byte_len: usize) {
+        if self.bf_scratch_a.len() < byte_len {
+            self.bf_scratch_a.resize(byte_len, 0);
+            self.bf_scratch_b.resize(byte_len, 0);
         }
     }
 
@@ -265,5 +283,26 @@ mod tests {
         assert_eq!(img.width(), 4);
         assert_eq!(img.height(), 4);
         assert_eq!(img.pixels_data().len(), 64);
+    }
+
+    #[test]
+    fn bilateral_filter_smoke() {
+        let before = checker_pixels(8, 8);
+        let mut img = Image::new(8, 8, before.clone());
+        img.bilateral_filter(3, 5.0, 1, false);
+        assert_ne!(img.pixels_data(), before);
+    }
+
+    #[test]
+    fn bilateral_filter_regression_checksum() {
+        let mut img = Image::new(8, 8, checker_pixels(8, 8));
+        img.bilateral_filter(3, 5.0, 1, false);
+        let sum: u32 = img
+            .pixels_data()
+            .chunks(4)
+            .map(|px| px[0] as u32 + px[1] as u32 + px[2] as u32)
+            .sum();
+        // LUT-interpolated range kernel; guards against accidental output drift.
+        assert_eq!(sum, 24477);
     }
 }

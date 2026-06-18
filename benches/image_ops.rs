@@ -33,5 +33,19 @@ fn bench_scale(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_gaussian_blur, bench_scale);
+fn bench_bilateral_filter(c: &mut Criterion) {
+    let mut group = c.benchmark_group("bilateral_filter");
+    for size in [64u32, 128, 256] {
+        group.bench_with_input(BenchmarkId::from_parameter(size), &size, |b, &size| {
+            b.iter(|| {
+                let mut img = Image::new(size, size, solid_pixels(size, size));
+                img.bilateral_filter(3, 5.0, 1, false);
+                black_box(img.pixels_data().len());
+            });
+        });
+    }
+    group.finish();
+}
+
+criterion_group!(benches, bench_gaussian_blur, bench_scale, bench_bilateral_filter);
 criterion_main!(benches);
