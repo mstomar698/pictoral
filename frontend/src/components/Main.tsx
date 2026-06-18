@@ -26,7 +26,7 @@ class Main extends Component<MainProps, MainState> {
   constructor(props: MainProps) {
     super(props);
     this.state = { selectedTool: null };
-    this.imgSrc = `${URL_PATH}/img/main.png`;
+    this.imgSrc = `${URL_PATH}/img/main.jpg`;
   }
 
   onSelectTool = (id: string | null) => this.setState({ selectedTool: id });
@@ -163,7 +163,7 @@ class Main extends Component<MainProps, MainState> {
       <div className="editor-app">
         <Header />
         <SubHeader resizeCanvas={this.resizeCanvas} loadImage={this.loadImage} />
-        <div className="editor-workspace">
+        <div className={`editor-workspace${panelOpen ? ' editor-workspace--panel-open' : ''}`}>
           <ToolPane
             onSelectTool={this.onSelectTool}
             selectedTool={this.state.selectedTool}

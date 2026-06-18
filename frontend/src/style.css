@@ -68,6 +68,8 @@ a {
   --editor-header-h: 56px;
   --editor-toolbar-h: 48px;
   --editor-footer-h: 44px;
+  --editor-rail-w: 56px;
+  --editor-panel-w: 256px;
 }
 
 .editor-app {
@@ -137,8 +139,21 @@ a {
   justify-content: center;
   align-items: center;
   min-height: var(--editor-toolbar-h);
+  padding: 0.35rem 0.5rem;
   background: var(--editor-panel);
   border-bottom: 1px solid var(--editor-border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.editor-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: 42rem;
 }
 
 .editor-workspace {
@@ -152,13 +167,18 @@ a {
   display: flex;
   flex-shrink: 0;
   height: 100%;
+  width: var(--editor-rail-w);
   transition: width 0.2s ease-out;
   background: var(--editor-rail);
   border-right: 1px solid var(--editor-border);
 }
 
+.editor-sidebar--open {
+  width: calc(var(--editor-rail-w) + var(--editor-panel-w));
+}
+
 .editor-tool-rail {
-  width: 56px;
+  width: var(--editor-rail-w);
   flex-shrink: 0;
 }
 
@@ -172,7 +192,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
+  width: var(--editor-rail-w);
   height: 44px;
   padding: 0;
   border: none;
@@ -190,6 +210,7 @@ a {
 
 .editor-tool-panel {
   flex-shrink: 0;
+  width: var(--editor-panel-w);
   overflow: hidden;
   background: var(--editor-panel);
   border-left: 1px solid var(--editor-border);
@@ -1097,4 +1118,208 @@ input[type='range']:focus::-ms-fill-upper {
 
 .editor-footer-legal a:hover {
   color: var(--editor-accent);
+}
+
+.editor-zoom-controls {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.editor-zoom-label {
+  margin-left: 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* ── Responsive layout ───────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  :root {
+    --editor-panel-w: 220px;
+  }
+
+  .editor-top-header {
+    padding: 0 0.75rem;
+  }
+
+  .editor-brand .editor-logo__wordmark {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --editor-header-h: 52px;
+    --editor-toolbar-h: auto;
+    --editor-footer-h: auto;
+    --editor-rail-w: 48px;
+    --editor-panel-w: min(100vw, 300px);
+  }
+
+  .editor-top-header {
+    padding: 0 0.65rem;
+  }
+
+  .editor-account__name,
+  .editor-account__signout {
+    display: none;
+  }
+
+  .editor-workspace {
+    flex-direction: column;
+    min-height: calc(100vh - var(--editor-header-h) - 56px);
+  }
+
+  .editor-sidebar {
+    order: 2;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    height: auto;
+    width: 100% !important;
+    flex-direction: column;
+    border-right: none;
+    border-top: 1px solid var(--editor-border);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .editor-sidebar--open .editor-tool-rail {
+    border-bottom: 1px solid var(--editor-border);
+  }
+
+  .editor-tool-rail {
+    width: 100%;
+  }
+
+  .editor-tool-rail ul {
+    display: flex;
+    justify-content: space-around;
+    padding: 0.25rem 0.35rem;
+    overflow-x: auto;
+  }
+
+  .editor-tool-rail li {
+    flex-shrink: 0;
+  }
+
+  .editor-tool-btn {
+    width: 48px;
+    height: 40px;
+    border-radius: 8px;
+  }
+
+  .editor-tool-panel {
+    width: 100% !important;
+    max-height: min(45vh, 320px);
+    border-left: none;
+    border-top: 1px solid var(--editor-border);
+  }
+
+  .editor-canvas-area {
+    order: 1;
+    padding-bottom: calc(var(--editor-rail-w) + 12px);
+    min-height: 55vh;
+  }
+
+  .editor-workspace--panel-open .editor-canvas-area {
+    padding-bottom: calc(48px + min(45vh, 320px) + 16px);
+  }
+
+  .editor-canvas-container canvas {
+    margin: 12px;
+  }
+
+  .editor-footer {
+    flex-wrap: wrap;
+    padding: 0.5rem 0.65rem;
+    gap: 0.5rem;
+  }
+
+  .editor-footer-legal {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.65rem 1rem;
+  }
+
+  .editor-zoom-controls {
+    order: 1;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .editor-zoom-label {
+    font-size: 0.8rem;
+  }
+
+  #view-size-setter {
+    max-width: 120px;
+  }
+
+  .editor-toolbar-actions {
+    gap: 0.25rem;
+    padding: 0.15rem 0;
+  }
+
+  .editor-toolbar-actions button,
+  .editor-toolbar-actions .btn-to-open-dropdown > div > button {
+    padding: 0.4rem 0.55rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .auth-page {
+    padding: 1.25rem 1rem 5rem;
+  }
+
+  .auth-card {
+    padding: 1.5rem;
+  }
+
+  .legal-page {
+    padding: 1.25rem 0.75rem 5rem;
+  }
+
+  .legal-card {
+    padding: 1.25rem;
+  }
+
+  .cookie-consent {
+    padding: 0.75rem;
+  }
+
+  .cookie-consent__inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cookie-consent__actions {
+    width: 100%;
+  }
+
+  .cookie-consent__actions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-brand .editor-logo__wordmark {
+    display: none;
+  }
+
+  .editor-toolbar-actions .w-px {
+    display: none;
+  }
+
+  .editor-accordion-body {
+    padding: 0.65rem 0.75rem 1rem;
+  }
+
+  .editor-zoom-label {
+    display: none;
+  }
 }

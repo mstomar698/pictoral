@@ -5,9 +5,6 @@ import AccordionMenu from './AccordionMenu';
 import type { RootState } from '../../store';
 import type { EditorCallbacks } from '../../types';
 
-const TOOL_RAIL_WIDTH = 56;
-const TOOL_PANEL_WIDTH = 256;
-
 interface ToolPaneProps {
   onSelectTool: (id: string | null) => void;
   selectedTool: string | null;
@@ -40,10 +37,7 @@ class ToolPane extends Component<ToolPaneProps> {
 
     return (
       <aside
-        className="editor-sidebar"
-        style={{
-          width: panelOpen ? TOOL_RAIL_WIDTH + TOOL_PANEL_WIDTH : TOOL_RAIL_WIDTH,
-        }}
+        className={`editor-sidebar${panelOpen ? ' editor-sidebar--open' : ''}`}
       >
         <nav className="editor-tool-rail" aria-label="Tools">
           <ul>
@@ -67,7 +61,6 @@ class ToolPane extends Component<ToolPaneProps> {
         <div
           id="tool-prop-list"
           className={`editor-tool-panel${panelOpen ? ' editor-tool-panel--open' : ''}`}
-          style={{ width: TOOL_PANEL_WIDTH }}
         >
           {panelOpen ? (
             <AccordionMenu

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
 async function prepareEditor(page: Page) {
-  const imageLoaded = page.waitForResponse((resp) => resp.url().includes('main.png') && resp.ok());
+  const imageLoaded = page.waitForResponse((resp) => resp.url().includes('main.jpg') && resp.ok());
   await page.goto('/');
   await imageLoaded.catch(() => {});
   const cookieBtn = page.getByRole('button', { name: 'Accept all' });

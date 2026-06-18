@@ -38,7 +38,7 @@ const ImgFileHandler: React.FC<EditorCallbacks> = ({ resizeCanvas, loadImage }) 
   useEditorKeyboardShortcuts({ onUndo: handleUndo, onRedo: handleRedo });
 
   return (
-    <div className="flex justify-around w-96 items-center">
+    <div className="editor-toolbar-actions">
       <button
         className={`inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-transparent text-sm font-medium ${
           canUndo
