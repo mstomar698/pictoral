@@ -9,11 +9,7 @@ import MiniHandlers from './MiniaturizeHandlers';
 import type { RootState, AppDispatch } from '../../store';
 import type { EditorCallbacks } from '../../types';
 
-interface CanvasOwnProps extends EditorCallbacks {
-  containerWidth: string;
-}
-
-type CanvasProps = ConnectedProps<typeof connector> & CanvasOwnProps;
+type CanvasProps = ConnectedProps<typeof connector> & EditorCallbacks;
 
 class Canvas extends Component<CanvasProps> {
   canvas: HTMLCanvasElement | null = null;
@@ -39,22 +35,8 @@ class Canvas extends Component<CanvasProps> {
 
   render() {
     return (
-      <div
-        className="scrollbar"
-        id="canvas-container"
-        style={{
-          width: this.props.containerWidth,
-          position: 'absolute',
-          bottom: '44px',
-          top: 0,
-          backgroundColor: '#1e2025',
-        }}
-      >
-        <canvas
-          id="canvas"
-          ref={(canvas) => { this.canvas = canvas; }}
-          style={{ position: 'absolute', margin: '20px' }}
-        />
+      <div className="editor-canvas-container scrollbar" id="canvas-container">
+        <canvas id="canvas" ref={(canvas) => { this.canvas = canvas; }} />
 
         {this.props.cropHandlersVisible ? (
           <CropHandlers zoomRatio={this.props.zoomRatio} />

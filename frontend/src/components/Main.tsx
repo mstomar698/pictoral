@@ -11,6 +11,9 @@ import { CIRCLE_RADIUS } from '../constants/handler';
 import SubHeader from './SubHeader';
 import type { RootState, AppDispatch } from '../store';
 
+const TOOL_RAIL_WIDTH = 56;
+const TOOL_PANEL_WIDTH = 256;
+
 interface MainState {
   selectedTool: string | null;
 }
@@ -154,43 +157,21 @@ class Main extends Component<MainProps, MainState> {
   };
 
   render() {
-    const canvasParentStyle: React.CSSProperties = {
-      width: '100%',
-      backgroundColor: '#1e2025',
-      paddingBottom: '30px',
-      transform:
-        this.state.selectedTool == null
-          ? 'translate(0px, 0px)'
-          : 'translate(250px, 0px)',
-    };
-    const containerWidth =
-      this.state.selectedTool == null
-        ? 'calc(100vw - 76px)'
-        : 'calc(100vw - 332px)';
+    const panelOpen = this.state.selectedTool != null;
 
     return (
-      <div className="h-full relative">
+      <div className="editor-app">
         <Header />
         <SubHeader resizeCanvas={this.resizeCanvas} loadImage={this.loadImage} />
-        <div
-          style={{
-            display: 'flex',
-            position: 'relative',
-            bottom: '0px',
-            width: '100%',
-          }}
-        >
+        <div className="editor-workspace">
           <ToolPane
             onSelectTool={this.onSelectTool}
             selectedTool={this.state.selectedTool}
             loadImage={this.loadImage}
+            panelOpen={panelOpen}
           />
-          <div style={canvasParentStyle} id="canvas-parent">
-            <Canvas
-              resizeCanvas={this.resizeCanvas}
-              loadImage={this.loadImage}
-              containerWidth={containerWidth}
-            />
+          <div className="editor-canvas-area" id="canvas-parent">
+            <Canvas resizeCanvas={this.resizeCanvas} loadImage={this.loadImage} />
             <Footer resizeCanvas={this.resizeCanvas} />
           </div>
         </div>
@@ -198,6 +179,8 @@ class Main extends Component<MainProps, MainState> {
     );
   }
 }
+
+export { TOOL_RAIL_WIDTH, TOOL_PANEL_WIDTH };
 
 const mapStateToProps = (state: RootState) => ({
   zoomRatio: state.imgStat.get('zoomRatio') as number,

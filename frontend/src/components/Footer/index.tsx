@@ -9,19 +9,9 @@ interface FooterProps {
 class Footer extends Component<FooterProps> {
   render() {
     return (
-      <div
-        style={{
-          display: 'flex',
-          position: 'absolute',
-          bottom: '0px',
-          height: '44px',
-          width: '100%',
-          paddingLeft: '10px',
-          backgroundColor: '#373842',
-        }}
-      >
+      <footer className="editor-footer">
         <ZoomRatio resizeCanvas={this.props.resizeCanvas} />
-      </div>
+      </footer>
     );
   }
 }
