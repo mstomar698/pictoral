@@ -54,6 +54,17 @@ fn wasm_scale_preserves_buffer_size_at_unity() {
 }
 
 #[wasm_bindgen_test]
+fn wasm_bilateral_filter_smoke() {
+    let mut buf = solid_pixels(8, 8, 200, 100, 50);
+    buf[0] = 0;
+    buf[1] = 0;
+    buf[2] = 0;
+    let mut img = Image::new(8, 8, buf);
+    img.bilateral_filter(3, 5.0, 1, false);
+    assert_eq!(img.pixels_data().len(), 256);
+}
+
+#[wasm_bindgen_test]
 fn wasm_tiny_1x1_image_operations() {
     let buf = solid_pixels(1, 1, 255, 0, 0);
     let mut img = Image::new(1, 1, buf);

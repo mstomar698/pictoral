@@ -6,6 +6,10 @@ use wasm_bindgen::prelude::*;
 use super::Image;
 use super::Operation;
 
+/// Upper bound on squared Lab distance for bilateral range-kernel LUT indexing.
+const BF_MAX_RANGE_SQ: f64 = 150_000.0;
+const BF_RANGE_LUT_SIZE: usize = 16384;
+
 macro_rules! log {
     ( $( $t:tt )* ) => {
         web_sys::console::log_1(&format!( $( $t )* ).into());
@@ -538,98 +542,155 @@ impl Image {
     }
 
     pub fn bilateral_filter(&mut self, radius: u32, sigma_r: f64, iter_count: u32, incr: bool) {
-
-        let mut src = if incr {self.pixels.clone()} else {self.pixels_bk.clone()};
-        let mut tgt = vec![255_u8; (self.width * self.height) as usize * 4];
-        for _ in 0..iter_count {
-            self.rgb_to_lab(&src);
-            self.iterative_bf(&src, &mut tgt, radius, sigma_r);
-            
-            std::mem::swap(&mut src, &mut tgt);
+        let pixel_bytes = (self.width * self.height * 4) as usize;
+        self.ensure_bf_scratch(pixel_bytes);
+        if self.lab.len() != pixel_bytes {
+            self.lab.resize(pixel_bytes, 0.0);
         }
 
-        
-        
-        self.pixels = if iter_count % 2 == 0 {tgt} else {src};
-        self.last_operation = Operation::BilateralFilter 
+        if incr {
+            self.bf_scratch_a[..pixel_bytes].copy_from_slice(&self.pixels);
+        } else {
+            self.bf_scratch_a[..pixel_bytes].copy_from_slice(&self.pixels_bk);
+        }
+
+        let spatial_kernel = Self::build_spatial_kernel(radius);
+        self.ensure_range_lut(sigma_r);
+
+        for _ in 0..iter_count {
+            {
+                let lab = &mut self.lab;
+                let src = &self.bf_scratch_a[..pixel_bytes];
+                Self::fill_lab_from_rgb(lab, self.width, self.height, src);
+            }
+            Self::iterative_bf(
+                &self.lab,
+                &self.bf_scratch_a[..pixel_bytes],
+                &mut self.bf_scratch_b[..pixel_bytes],
+                self.width,
+                self.height,
+                radius,
+                &spatial_kernel,
+                &self.bf_range_lut,
+            );
+            std::mem::swap(&mut self.bf_scratch_a, &mut self.bf_scratch_b);
+        }
+
+        let final_buf = if iter_count % 2 == 0 {
+            &self.bf_scratch_b[..pixel_bytes]
+        } else {
+            &self.bf_scratch_a[..pixel_bytes]
+        };
+        if self.pixels.len() == pixel_bytes {
+            self.pixels.copy_from_slice(final_buf);
+        } else {
+            self.pixels = final_buf.to_vec();
+        }
+        self.last_operation = Operation::BilateralFilter;
     }
 
-    
-    
-    fn iterative_bf(&mut self, src: &[u8], tgt: &mut [u8], radius: u32, sigma_r: f64) {
-        let sigma_d = radius as f64 / 2.0; 
-        let gaussian = |x: i32, y: i32| {
-            
-            let a = -0.5 * ((x * x) as f64  + (y * y) as f64) / (sigma_d * sigma_d);
-            1.0_f64.exp().powf(a)
-        };
+    fn ensure_range_lut(&mut self, sigma_r: f64) {
+        if self.bf_range_lut.is_empty() || (self.bf_range_sigma - sigma_r).abs() > f64::EPSILON {
+            self.bf_range_lut = Self::build_range_lut(sigma_r);
+            self.bf_range_sigma = sigma_r;
+        }
+    }
 
-        let mut kernel_value = 0.0;
+    fn build_range_lut(sigma_r: f64) -> Vec<f64> {
+        let inv = -0.5 / (sigma_r * sigma_r);
+        (0..BF_RANGE_LUT_SIZE)
+            .map(|i| {
+                let sq = (i as f64 / (BF_RANGE_LUT_SIZE - 1) as f64) * BF_MAX_RANGE_SQ;
+                (inv * sq).exp()
+            })
+            .collect()
+    }
+
+    fn range_weight_lut(lut: &[f64], range_sq: f64) -> f64 {
+        if range_sq <= 0.0 {
+            return lut[0];
+        }
+        if range_sq >= BF_MAX_RANGE_SQ {
+            return lut[BF_RANGE_LUT_SIZE - 1];
+        }
+        let t = range_sq / BF_MAX_RANGE_SQ;
+        let f = t * (BF_RANGE_LUT_SIZE - 1) as f64;
+        let i = f.floor() as usize;
+        let frac = f - i as f64;
+        let j = (i + 1).min(BF_RANGE_LUT_SIZE - 1);
+        lut[i] * (1.0 - frac) + lut[j] * frac
+    }
+
+    fn build_spatial_kernel(radius: u32) -> Vec<f64> {
+        let sigma_d = radius as f64 / 2.0;
+        let inv_2sigma2 = -0.5 / (sigma_d * sigma_d);
         let kernel_size = 2 * radius as usize + 1;
         let mut kernel = Vec::with_capacity(kernel_size * kernel_size);
-        for row in 0..kernel_size{
+        for row in 0..kernel_size {
             for col in 0..kernel_size {
-                kernel_value = gaussian(row as i32 - radius as i32, col as i32 - radius as i32);
-                kernel.push(kernel_value);
+                let x = row as i32 - radius as i32;
+                let y = col as i32 - radius as i32;
+                let sq = (x * x + y * y) as f64;
+                kernel.push((inv_2sigma2 * sq).exp());
             }
         }
+        kernel
+    }
 
-        let range_kernel = |x: f64| {
-            
-            
-            
-            let a = -0.5 * x / (sigma_r * sigma_r);
-            1.0_f64.exp().powf(a)
-        };
+    fn iterative_bf(
+        lab: &[f64],
+        src: &[u8],
+        tgt: &mut [u8],
+        img_width: u32,
+        img_height: u32,
+        radius: u32,
+        spatial_kernel: &[f64],
+        range_lut: &[f64],
+    ) {
+        let kernel_size = 2 * radius as usize + 1;
+        let h_max = img_height as i32 - 1;
+        let w_max = img_width as i32 - 1;
 
-        
-        let color_diff = |l1: f64, a1: f64, b1: f64, l2: f64, a2: f64, b2: f64| -> f64 {
-            let delta_l = l1 - l2;
-            let delta_a = a1 - a2;
-            let delta_b = b1 - b2;
-            
-            
-            
-            delta_l * delta_l + delta_a * delta_a + delta_b * delta_b
-        };
-
-        let img_width = self.width;
-        let img_height = self.height;
         for row in 0..img_height {
             for col in 0..img_width {
+                let center_idx = (row * img_width + col) as usize;
+                let l1 = lab[center_idx * 4];
+                let a1 = lab[center_idx * 4 + 1];
+                let b1 = lab[center_idx * 4 + 2];
+
                 let mut weight = 0.0;
-                let idx = (row * img_width + col) as usize;
-                
-                let mut new_value = (0.0, 0.0, 0.0);
-                let (l1, a1, b1) = (self.lab[idx * 4 + 0], self.lab[idx * 4 + 1], self.lab[idx * 4 + 2]);
+                let mut new_r = 0.0;
+                let mut new_g = 0.0;
+                let mut new_b = 0.0;
 
                 for i in 0..kernel_size {
                     for j in 0..kernel_size {
-                        let r = (row as i32 - radius as i32 + i as i32).max(0).min(img_height as i32 - 1) as usize;
-                        let c = (col as i32 - radius as i32 + j as i32).max(0).min(img_width as i32 - 1) as usize;
+                        let r = (row as i32 - radius as i32 + i as i32)
+                            .clamp(0, h_max) as usize;
+                        let c = (col as i32 - radius as i32 + j as i32)
+                            .clamp(0, w_max) as usize;
                         let idx = r * img_width as usize + c;
 
-                        let red = src[idx * 4 + 0];
-                        let green = src[idx * 4 + 1];
-                        let blue = src[idx * 4 + 2];
+                        let l2 = lab[idx * 4];
+                        let a2 = lab[idx * 4 + 1];
+                        let b2 = lab[idx * 4 + 2];
+                        let dl = l1 - l2;
+                        let da = a1 - a2;
+                        let db = b1 - b2;
+                        let range_sq = dl * dl + da * da + db * db;
 
-                        let (l2, a2, b2) = (self.lab[idx * 4 + 0], self.lab[idx * 4 + 1], self.lab[idx * 4 +2]);
-                        let weight_domain = kernel[i * kernel_size + j];
-                        let range_diff = color_diff(l1, a1, b1, l2, a2, b2);
-                        
+                        let composite_weight =
+                            spatial_kernel[i * kernel_size + j] * Self::range_weight_lut(range_lut, range_sq);
 
-                        let weight_range = range_kernel(range_diff);
-                        let composite_weight = weight_domain * weight_range;
-
-                        new_value.0 += red as f64 * composite_weight;
-                        new_value.1 += green as f64 * composite_weight;
-                        new_value.2 += blue as f64 * composite_weight;
+                        new_r += src[idx * 4] as f64 * composite_weight;
+                        new_g += src[idx * 4 + 1] as f64 * composite_weight;
+                        new_b += src[idx * 4 + 2] as f64 * composite_weight;
                         weight += composite_weight;
                     }
                 }
-                tgt[idx * 4 + 0] = (new_value.0 / weight) as u8;
-                tgt[idx * 4 + 1] = (new_value.1 / weight) as u8;
-                tgt[idx * 4 + 2] = (new_value.2 / weight) as u8;
+                tgt[center_idx * 4] = (new_r / weight) as u8;
+                tgt[center_idx * 4 + 1] = (new_g / weight) as u8;
+                tgt[center_idx * 4 + 2] = (new_b / weight) as u8;
             }
         }
     }
@@ -637,87 +698,68 @@ impl Image {
     
     
     
-    fn rgb_to_lab(&mut self, rgb: &[u8]) {
-        
-        
-        let img_size = (self.width * self.height) as usize;
-        if self.lab.len() != img_size * 4 {
-            
-            self.lab = vec![0_f64; img_size * 4]
-        }
-        let (mut r, mut g, mut b, mut X, mut Y, mut Z, mut xr, mut yr, mut zr);
-        let Xr = 95.047;
-        let Yr = 100.0;
-        let Zr = 108.883;
+    fn fill_lab_from_rgb(lab: &mut [f64], width: u32, _height: u32, rgb: &[u8]) {
+        let (mut r, mut g, mut b, mut x, mut y, mut z, mut xr, mut yr, mut zr);
+        let xr_ref = 95.047;
+        let yr_ref = 100.0;
+        let zr_ref = 108.883;
 
-        for idx in 0..(self.width * self.height) {
-            
+        for idx in 0..(width * _height) {
             r = rgb[idx as usize * 4 + 0] as f64 / 255.0;
             g = rgb[idx as usize * 4 + 1] as f64 / 255.0;
             b = rgb[idx as usize * 4 + 2] as f64 / 255.0;
 
             if r > 0.04045 {
-                
                 r = ((r + 0.055) / 1.055).powf(2.4);
             } else {
                 r /= 12.92;
             }
 
             if g > 0.04045 {
-                
                 g = ((g + 0.055) / 1.055).powf(2.4);
             } else {
                 g /= 12.92;
             }
 
             if b > 0.04045 {
-                
                 b = ((b + 0.055) / 1.055).powf(2.4);
             } else {
-                b /= 12.92 ;
+                b /= 12.92;
             }
 
             r *= 100.0;
             g *= 100.0;
             b *= 100.0;
 
-            X =  0.4124 * r + 0.3576 * g + 0.1805 * b;
-            Y =  0.2126 * r + 0.7152 * g + 0.0722 * b;
-            Z =  0.0193 * r + 0.1192 * g + 0.9505 * b;
+            x = 0.4124 * r + 0.3576 * g + 0.1805 * b;
+            y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            z = 0.0193 * r + 0.1192 * g + 0.9505 * b;
 
-            
-
-            xr = X / Xr;
-            yr = Y / Yr;
-            zr = Z / Zr;
+            xr = x / xr_ref;
+            yr = y / yr_ref;
+            zr = z / zr_ref;
 
             if xr > 0.008856 {
-                
-                xr = xr.powf(1.0/3.0)
+                xr = xr.powf(1.0 / 3.0);
             } else {
-                
                 xr = (7.787 * xr) + 16.0 / 116.0;
             }
 
             if yr > 0.008856 {
-                
-                yr = yr.powf(1.0/3.0);
+                yr = yr.powf(1.0 / 3.0);
             } else {
-                
                 yr = (7.787 * yr) + 16.0 / 116.0;
             }
 
             if zr > 0.008856 {
-                
-                zr = zr.powf(1.0/3.0);
+                zr = zr.powf(1.0 / 3.0);
             } else {
-                
                 zr = (7.787 * zr) + 16.0 / 116.0;
             }
 
-            self.lab[idx as usize * 4 + 0] = (116.0 * yr) - 16.0;
-            self.lab[idx as usize * 4 + 1] = 500.0 * (xr - yr);
-            self.lab[idx as usize * 4 + 2] = 200.0 * (yr - zr);
+            lab[idx as usize * 4 + 0] = (116.0 * yr) - 16.0;
+            lab[idx as usize * 4 + 1] = 500.0 * (xr - yr);
+            lab[idx as usize * 4 + 2] = 200.0 * (yr - zr);
         }
     }
 
