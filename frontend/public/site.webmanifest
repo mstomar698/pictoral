@@ -1,0 +1,28 @@
+{
+  "name": "Pictoral",
+  "short_name": "Pictoral",
+  "description": "Browser-based image editor powered by Rust and WebAssembly",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/pictoral-favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#14151a",
+  "background_color": "#14151a",
+  "display": "standalone",
+  "start_url": "/"
+}

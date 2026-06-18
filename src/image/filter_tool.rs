@@ -589,6 +589,51 @@ impl Image {
         self.last_operation = Operation::BilateralFilter;
     }
 
+    /// Unsharp mask sharpen: `amount` typically 0.5–2.0
+    pub fn sharpen(&mut self, amount: f64) {
+        let w = self.width;
+        let h = self.height;
+        let orig = self.pixels.clone();
+        self.gaussian_blur(1.0, 0, 0, w, h, false);
+        let blurred = self.pixels.clone();
+        for px in 0..(w * h) as usize {
+            for c in 0..3 {
+                let o = orig[px * 4 + c] as f64;
+                let b = blurred[px * 4 + c] as f64;
+                self.pixels[px * 4 + c] =
+                    (o + amount * (o - b)).clamp(0.0, 255.0).round() as u8;
+            }
+        }
+        self.last_operation = Operation::GaussianBlur;
+    }
+
+    /// Horizontal motion blur; `length` is approximate streak size in pixels.
+    pub fn motion_blur(&mut self, length: u32) {
+        let w = self.width;
+        let h = self.height;
+        let pixel_bytes = (w * h * 4) as usize;
+        self.ensure_blur_scratch(pixel_bytes);
+        let radius = (length.max(2) / 2).max(1);
+        let bk = self.pixels_bk.as_slice();
+        Self::box_blur_h(bk, &mut self.blur_scratch_a[..pixel_bytes], w, h, radius);
+        if self.pixels.len() == pixel_bytes {
+            self.pixels.copy_from_slice(&self.blur_scratch_a[..pixel_bytes]);
+        } else {
+            self.pixels = self.blur_scratch_a[..pixel_bytes].to_vec();
+        }
+        self.last_operation = Operation::GaussianBlur;
+    }
+
+    /// Cartoon effect: median denoise then edge-preserving bilateral smoothing.
+    pub fn cartoonify(&mut self, median_radius: u32, sigma_r: f64, iter_count: u32, incr: bool) {
+        if !incr {
+            self.pixels.copy_from_slice(&self.pixels_bk);
+        }
+        self.median_filter(median_radius.max(1));
+        self.bilateral_filter(2, sigma_r, iter_count.max(1), true);
+        self.last_operation = Operation::Cartoonify;
+    }
+
     fn ensure_range_lut(&mut self, sigma_r: f64) {
         if self.bf_range_lut.is_empty() || (self.bf_range_sigma - sigma_r).abs() > f64::EPSILON {
             self.bf_range_lut = Self::build_range_lut(sigma_r);

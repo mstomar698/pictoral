@@ -105,7 +105,7 @@ export default class Exposure extends Component<ToolSubtoolProps, ExposureState>
   render() {
     let autoAdjustContrast = this.state.contrastAdjustMode === 'auto';
     return (
-      <div style={{ marginBottom: '180x', color: '#CCC' }}>
+      <div style={{ marginBottom: '18px', color: '#CCC' }}>
         <div style={{ marginBottom: '24px' }}>
           <div
             style={{

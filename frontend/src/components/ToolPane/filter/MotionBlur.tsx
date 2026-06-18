@@ -1,30 +1,43 @@
 import imgObj from '../../common/imgObj';
 import React, { Component } from 'react';
 import ApplyButton from '../common/ApplyButton';
+import SliderRow from '../common/SliderRow';
 import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-export default class MotionBlur extends Component<ToolSubtoolProps> {
+interface MotionBlurState {
+  length: number;
+  running: boolean;
+}
+
+export default class MotionBlur extends Component<ToolSubtoolProps, MotionBlurState> {
   wasm_img: WasmImage;
-  sliderRange: Record<string, number[]>;
   changeApplied: boolean;
 
   constructor(props: ToolSubtoolProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
-    this.state = {};
-
-    this.sliderRange = {
-      contrast: [1, 20, 1],
-      brightness: [10, 10, 1],
-    };
-    this.changeApplied = true;
+    this.state = { length: 12, running: true };
+    this.changeApplied = false;
   }
+
+  componentDidMount = () => setTimeout(this.applyBlur, 0);
 
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
       this.props.redraw?.();
     }
+  };
+
+  applyBlur = () => {
+    this.wasm_img.motion_blur(this.state.length);
+    this.props.redraw?.();
+    this.setState({ running: false });
+    this.changeApplied = false;
+  };
+
+  onLength = (length: number) => {
+    this.setState({ length, running: true }, this.applyBlur);
   };
 
   onApply = () => {
@@ -35,9 +48,13 @@ export default class MotionBlur extends Component<ToolSubtoolProps> {
 
   render() {
     return (
-      <div style={{ marginBottom: '180x', color: '#CCC' }}>
-        Motion blur
+      <div className="editor-panel">
+        <p className="editor-hint" style={{ visibility: this.state.running ? 'visible' : 'hidden' }}>
+          Running…
+        </p>
+        <SliderRow label="Length" value={this.state.length} min={4} max={40} step={2} onChange={this.onLength} />
         <ApplyButton onApply={this.onApply} />
+        <p className="editor-hint">Horizontal motion streak effect.</p>
       </div>
     );
   }

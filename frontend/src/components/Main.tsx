@@ -163,7 +163,7 @@ class Main extends Component<MainProps, MainState> {
       <div className="editor-app">
         <Header />
         <SubHeader resizeCanvas={this.resizeCanvas} loadImage={this.loadImage} />
-        <div className="editor-workspace">
+        <div className={`editor-workspace${panelOpen ? ' editor-workspace--panel-open' : ''}`}>
           <ToolPane
             onSelectTool={this.onSelectTool}
             selectedTool={this.state.selectedTool}

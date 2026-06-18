@@ -109,7 +109,7 @@ export default class BilateralFilter extends Component<ToolSubtoolWithLoadProps,
 
   render() {
     return (
-      <div style={{ marginBottom: '180x', color: '#CCC' }}>
+      <div style={{ marginBottom: '18px', color: '#CCC' }}>
         <div
           className="blinking-text"
           style={{ visibility: this.state.running ? 'visible' : 'hidden' }}
@@ -267,18 +267,15 @@ export default class BilateralFilter extends Component<ToolSubtoolWithLoadProps,
 
         <ApplyButton onApply={this.onApply} />
 
-        <p style={{ fontSize: '12px', marginTop: '18px', color: '#ddd' }}>
-          The following 2 celebrity images best represent this filtering result.
+        <p className="editor-hint">
+          Edge-preserving smoothing — works best on portraits and detailed subjects.
         </p>
-        <ul
-          style={{ fontSize: '12px', paddingLeft: '12px', color: '#00B7FF' }}
-          onClick={this.loadImage}
-        >
-          <li className="clickable" id={`${URL_PATH}/img/EddieRedmayne.jpg`}>
-            Eddie Redmayne
+        <ul className="editor-sample-list" onClick={this.loadImage}>
+          <li className="clickable" id={`${URL_PATH}/img/portrait.jpg`}>
+            Soft portrait
           </li>
-          <li className="clickable" id={`${URL_PATH}/img/EmmaStone.jpg`}>
-            Emma Stone
+          <li className="clickable" id={`${URL_PATH}/img/sample.jpg`}>
+            Ceramic fox
           </li>
         </ul>
       </div>

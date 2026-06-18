@@ -1,6 +1,6 @@
 # Pictoral — Stabilization & Roadmap
 
-> **Last updated:** 2026-06-14 — TypeScript migration complete (PR #9 merged)
+> **Last updated:** 2026-06-18 — Auth, filters, responsive layout (PR #17)
 
 ## Objective
 Make Pictoral a reproducible, production-ready OSS web image editor with Rust/WASM core, TypeScript frontend, full test coverage, and PR-based CI/CD.
@@ -12,7 +12,7 @@ Make Pictoral a reproducible, production-ready OSS web image editor with Rust/WA
 | Rust/WASM core | ✅ Compiles, `wasm-pack build` produces `pkg/` |
 | Frontend | ✅ React + Redux, fully TypeScript |
 | Unit tests | ✅ Rust (`cargo test`) + Vitest (reducers) |
-| E2E tests | ✅ Playwright (UI shell, navigation, canvas) |
+| E2E tests | ✅ Playwright (editor shell, auth, legal, filters, undo) |
 | CI/CD | ✅ GitHub Actions (rust, frontend, e2e jobs) |
 | Docs | ✅ ADRs, CONTRIBUTING, CLAUDE.md, Cursor skills |
 | Vulnerabilities | ✅ Legacy deps removed, packages upgraded |
@@ -79,8 +79,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 
 ### Phase 4 — Product & Delivery (in progress)
 - [x] npm package scaffolding for WASM artifacts (`@pictoral/wasm-core`)
-- [x] GitHub Pages demo deploy workflow
+- [x] Vercel production deploy workflow
 - [x] Public release checklist (`docs/oss-release.md`)
+- [x] Auth (Google/GitHub/guest), legal pages, cookie consent
+- [x] Responsive mobile layout
+- [x] AI-generated default and filter demo images
 - [ ] Enable branch protection on `main` (manual, before public launch)
 
 ## Local commands

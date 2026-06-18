@@ -1,30 +1,43 @@
 import imgObj from '../../common/imgObj';
 import React, { Component } from 'react';
 import ApplyButton from '../common/ApplyButton';
+import SliderRow from '../common/SliderRow';
 import type { ToolSubtoolProps, WasmImage } from '../../../types';
 
-export default class Sharpen extends Component<ToolSubtoolProps> {
+interface SharpenState {
+  amount: number;
+  running: boolean;
+}
+
+export default class Sharpen extends Component<ToolSubtoolProps, SharpenState> {
   wasm_img: WasmImage;
-  sliderRange: Record<string, number[]>;
   changeApplied: boolean;
 
   constructor(props: ToolSubtoolProps) {
     super(props);
     this.wasm_img = imgObj.get_wasm_img();
-    this.state = {};
-
-    this.sliderRange = {
-      contrast: [1, 20, 1],
-      brightness: [10, 10, 1],
-    };
-    this.changeApplied = true;
+    this.state = { amount: 10, running: true };
+    this.changeApplied = false;
   }
+
+  componentDidMount = () => setTimeout(this.applySharpen, 0);
 
   componentWillUnmount = () => {
     if (!this.changeApplied) {
       this.wasm_img.discard_change();
       this.props.redraw?.();
     }
+  };
+
+  applySharpen = () => {
+    this.wasm_img.sharpen(this.state.amount / 10);
+    this.props.redraw?.();
+    this.setState({ running: false });
+    this.changeApplied = false;
+  };
+
+  onAmount = (amount: number) => {
+    this.setState({ amount, running: true }, this.applySharpen);
   };
 
   onApply = () => {
@@ -35,9 +48,13 @@ export default class Sharpen extends Component<ToolSubtoolProps> {
 
   render() {
     return (
-      <div style={{ marginBottom: '180x', color: '#CCC' }}>
-        Sharpen
+      <div className="editor-panel">
+        <p className="editor-hint" style={{ visibility: this.state.running ? 'visible' : 'hidden' }}>
+          Running…
+        </p>
+        <SliderRow label="Strength" value={this.state.amount} min={1} max={30} onChange={this.onAmount} />
         <ApplyButton onApply={this.onApply} />
+        <p className="editor-hint">Unsharp mask — enhances edges and fine detail.</p>
       </div>
     );
   }

@@ -100,6 +100,8 @@ module.exports = {
     new webpack.DefinePlugin({
       PRODUCTION: JSON.stringify(false),
       URL_PATH: JSON.stringify(''),
+      GOOGLE_CLIENT_ID: JSON.stringify(process.env.GOOGLE_CLIENT_ID || ''),
+      GITHUB_CLIENT_ID: JSON.stringify(process.env.GITHUB_CLIENT_ID || ''),
     }),
     new CopyWebpackPlugin({
       patterns: [

@@ -104,6 +104,11 @@ impl Image {
         self.pixels.clone()
     }
 
+    /// Returns a copy of the last committed (backup) pixel buffer for undo history.
+    pub fn pixels_bk_data(&self) -> Vec<u8> {
+        self.pixels_bk.clone()
+    }
+
     pub fn width(&self) -> u32 { self.width }
     pub fn height(&self) -> u32 { self.height }
     pub fn width_bk(&self) -> u32 { self.width_bk }

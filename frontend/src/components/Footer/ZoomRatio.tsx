@@ -33,7 +33,7 @@ class ZoomRatio extends Component<ZoomRatioProps> {
 
   render() {
     return (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div className="editor-zoom-controls">
         <button className="resize-view-btn fit-to-screen" onClick={this.setRatio}>
           <svg viewBox="-4 -4 22 22" width="22" height="22" fill="white" pointerEvents="none">
             <path
@@ -67,7 +67,7 @@ class ZoomRatio extends Component<ZoomRatioProps> {
           </svg>
         </button>
 
-        <span style={{ marginLeft: '8px', color: '#FFF' }}>
+        <span className="editor-zoom-label">
           {Math.round(this.props.zoomRatio * 100)}%
         </span>
       </div>

@@ -87,15 +87,15 @@ class OpenImage extends Component<EditorCallbacks, OpenImageState> {
                 </div>
                 <div
                   className="test-image clickable block px-4 py-2 text-sm text-gray-700 cursor-pointer hover:text-gray-900"
-                  id={`${URL_PATH}/img/temperature_demo.png`}
+                  id={`${URL_PATH}/img/main.jpg`}
                 >
-                  Demo temperature
+                  Golden valley
                 </div>
                 <div
                   className="test-image clickable block px-4 py-2 text-sm text-gray-700 cursor-pointer hover:text-gray-900"
-                  id={`${URL_PATH}/img/kitty.jpg`}
+                  id={`${URL_PATH}/img/sample.jpg`}
                 >
-                  Demo contrast
+                  Ceramic fox
                 </div>
               </div>
             </div>
