@@ -42,4 +42,18 @@ test.describe('Pictoral editor shell', () => {
     await expect(page.getByRole('button', { name: 'Save' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Restore' })).toBeVisible();
   });
+
+  test('opens basic tool with adjustment controls', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('#tool-basic').click();
+    await expect(page.getByText('Black & White')).toBeVisible();
+    await expect(page.getByText('Auto enhance')).toBeVisible();
+  });
+
+  test('opens text tool with placement flow', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('#tool-text').click();
+    await expect(page.getByRole('button', { name: 'Click canvas to place' })).toBeVisible();
+    await expect(page.locator('.editor-textarea')).toBeVisible();
+  });
 });

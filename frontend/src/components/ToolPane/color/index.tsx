@@ -41,7 +41,7 @@ class ColorTool extends Component<RedrawProps, ColorToolState> {
           onSelect={this.onSelectTool}
           toolID="color-basic"
           selectedTool={this.state.selectedTool}
-          label="BASIC"
+          label="TONE"
         >
           <Basic onSelectTool={this.onSelectTool} redraw={this.props.redraw} />
         </ToolHeader>
